@@ -1,0 +1,6 @@
+Nano Basket
+
+An effort to create configuration software for the Korg nanoSERIES
+MIDI controllers.
+
+Written in Python, using pygtk for GUI.
