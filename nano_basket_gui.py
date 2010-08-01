@@ -944,21 +944,21 @@ class Nano_Kontrol_Gui:
                                       {'Widget':'Scene_Midi_Channel', 'Widget_Type':'Slider'})
 
       self.Common_H_Box.pack_start(self.Transport_Midi_Channel_Label,
-                                   expand=True, fill=True, padding=0)
+                                   expand=True, fill=True, padding=2)
       self.Common_H_Box.pack_start(self.Transport_Midi_Channel,
-                                   expand=True, fill=True, padding=0)
+                                   expand=True, fill=True, padding=2)
       self.Common_H_Box.pack_start(self.Block_Midi_Channel_Label,
-                                   expand=True, fill=True, padding=0)
+                                   expand=True, fill=True, padding=2)
       self.Common_H_Box.pack_start(self.Block_Midi_Channel,
-                                   expand=True, fill=True, padding=0)
+                                   expand=True, fill=True, padding=2)
       self.Common_H_Box.pack_start(self.Scene_Name_Label,
-                                   expand=True, fill=True, padding=0)
+                                   expand=True, fill=True, padding=2)
       self.Common_H_Box.pack_start(self.Scene_Name,
-                                   expand=True, fill=True, padding=0)
+                                   expand=True, fill=True, padding=2)
       self.Common_H_Box.pack_start(self.Scene_Midi_Channel_Label,
-                                   expand=True, fill=True, padding=0)
+                                   expand=True, fill=True, padding=2)
       self.Common_H_Box.pack_start(self.Scene_Midi_Channel,
-                                   expand=True, fill=True, padding=0)
+                                   expand=True, fill=True, padding=2)
       self.Transport_Midi_Channel_Label.show()
       self.Transport_Midi_Channel.show()
       self.Block_Midi_Channel_Label.show()

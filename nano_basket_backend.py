@@ -19,6 +19,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Nano Basket.  If not, see <http://www.gnu.org/licenses/>.
 
+import struct
+
 class Nano_Kontrol_Common:
    """Common parameters from TABLE 1 of 'nanoKONTROL MIDI Implementation'
    file available from Korg."""
@@ -198,7 +200,6 @@ class Nano_Kontrol_Scene:
       """Return a sysex string that can be sent to the nanoKONTROL
       device"""
 
-      import struct
       Sysex_List = self.Get_List()
       # Inser a '0' every 8th index
       for i in range(37):
@@ -216,3 +217,72 @@ class Nano_Kontrol_Scene:
       Sysex_String = Sysex_String + '\xf7' # End of Exclusive (EOX)
 
       return Sysex_String
+
+class Nano_Kontrol_Midi_Comm:
+   """Communicates with the device."""
+
+   def __init__(self, Midi_Device_Name):
+      self.Midi_Device = Midi_Device_Name
+
+   def Scene_Change_Request(self, Scene_Number=0):
+      """Sends a scene change request to th device."""
+
+      if (Scene_Number > 3):
+         Scene_Number = 3
+      elif (Scene_Number < 0):
+         Scene_Number = 0
+
+      Sysex_String = '\xf0\x42\x40' # Exclusive Header
+      Sysex_String = Sysex_String + '\x00\x01\x04\x00' # Software Project (nanoKONTROL: 000104H)
+      Sysex_String = Sysex_String + '\x1f' # Data Dump Command  (Host->Controller, 2Bytes Format)
+      Sysex_String = Sysex_String + '\x14' # Scene Change Request
+      Sysex_String = Sysex_String + struct.pack('B', Scene_Number)
+      Sysex_String = Sysex_String + '\xf7' # End of Exclusive (EOX)
+
+      Device = open(self.Midi_Device, 'r+')
+      Device.write(Sysex_String)
+      Response = Device.read(11)
+      Device.close()
+
+      if (struct.unpack('11B', Response)[9] == Scene_Number):
+         print('Scene change Success!')
+
+   def Scene_Upload_Request(self, Sysex_String, Scene_Number=None):
+      """Writes a scene configuration to the device."""
+
+      if (Scene_Number):
+         self.Scene_Change_Request(Scene_Number)
+
+      Device = open(self.Midi_Device, 'r+')
+      Device.write(Sysex_String)
+      Response = Device.read(11)
+      Device.close()
+
+      if (struct.unpack('11B', Response)[8] == 0x23):
+         print('Data load Success!')
+
+   def Scene_Dump_Request(self, Scene_Number=None):
+      """Reads the scene configuration from the device."""
+
+      if (Scene_Number):
+         self.Scene_Change_Request(Scene_Number)
+
+      Sysex_String = '\xf0\x42\x40' # Exclusive Header
+      Sysex_String = Sysex_String + '\x00\x01\x04\x00' # Software Project (nanoKONTROL: 000104H)
+      Sysex_String = Sysex_String + '\x1f' # Data Dump Command  (Host->Controller, 2Bytes Format)
+      Sysex_String = Sysex_String + '\x10' # Scene Change Request
+      Sysex_String = Sysex_String + '\x00' # Padding
+      Sysex_String = Sysex_String + '\xf7' # End of Exclusive (EOX)
+
+      Device = open(self.Midi_Device, 'r+')
+      Device.write(Sysex_String)
+      Response = Device.read(293)
+      Device.close()
+
+      print(struct.unpack('293B', Response))
+
+
+if (__name__ == '__main__'):
+   Nano_Scene = Nano_Kontrol_Scene()
+   Midi_Comm = Nano_Kontrol_Midi_Comm('/dev/snd/midiC3D0')
+   Midi_Comm.Scene_Change_Request(0)
