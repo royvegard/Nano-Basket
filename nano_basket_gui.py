@@ -89,12 +89,42 @@ class Nano_Kontrol_Gui:
          self.Transport_MMC_Dev_ID.set_value(self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].MMC_Device_ID)
          self.Transport_Switch_Type.set_active(index=self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].Switch_Type)
 
-      # Emphasize the label of the current block.
-      for i in range(len(self.Block_Labels)):
-         if (i == self.Current_Block):
-            self.Block_Labels[i].set_markup('<span foreground="red" size="large">%d</span>' % (i+1))
-         else:
-            self.Block_Labels[i].set_markup('<span foreground="black">%d</span>' % (i+1))
+      # Emphasize the current widget.
+      if (widget):
+         Highlight_Color = gtk.gdk.Color(red=0, green=65535, blue=0, pixel=0)
+         Normal_Color = self.Scene_Button.get_style().bg[0]
+
+         for child in self.Transport_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_1_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_2_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_3_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_4_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_5_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_6_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_7_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_8_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         for child in self.Block_9_Table.get_children():
+            child.modify_bg(state=gtk.STATE_NORMAL, color=Normal_Color)
+
+         widget.modify_bg(state=gtk.STATE_NORMAL, color=Highlight_Color)
 
 
    def Spin_Event(self, widget, data=None):
@@ -1322,7 +1352,7 @@ class Nano_Kontrol_Gui:
 
       self.Window.add(self.V_Box_Top)
       self.Window.show()
-      
+
       self.Scene_1_Light.clicked()
 
    def main(self):
