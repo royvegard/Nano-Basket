@@ -285,13 +285,45 @@ class Nano_Kontrol_Gui:
       f.write(self.Scene[self.Current_Scene].Get_Sysex_String())
       f.close()
 
-   def __init__(self, Scene):
+   def Upload_Scene_Event(self, widget, data=None):
+      self.Midi_Comm.Scene_Change_Request(Scene_Number=self.Current_Scene)
+      Scene_Sysex = self.Scene[self.Current_Scene].Get_Sysex_String()
+      self.Midi_Comm.Scene_Upload_Request(Sysex_String=Scene_Sysex, Scene_Number=self.Current_Scene)
+      self.Midi_Comm.Scene_Write_Request(Scene_Number=self.Current_Scene)
+
+   def Options_Event(self, widget, data=None):
+      Option_Dialog = gtk.Dialog(title='Options', parent=self.Window, flags=0,
+         buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                  gtk.STOCK_OK, gtk.RESPONSE_OK))
+      
+      H_Box = Option_Dialog.get_content_area()
+      
+      Midi_Device_Label = gtk.Label(str='Midi device:')
+      Midi_Device_Entry = gtk.Entry()
+      Midi_Device_Entry.set_text(self.Midi_Comm.Midi_Device)
+      H_Box.pack_start(child=Midi_Device_Label, expand=False, fill=False, padding=2)
+      H_Box.pack_start(child=Midi_Device_Entry, expand=False, fill=False, padding=2)
+      Midi_Device_Label.show()
+      Midi_Device_Entry.show()
+      #Option_Dialog.add(H_Box)
+      #H_Box.show()
+      
+      Response = Option_Dialog.run()
+      if (Response == gtk.RESPONSE_OK):
+         self.Midi_Comm.Midi_Device = Midi_Device_Entry.get_text()
+      
+      Option_Dialog.destroy()
+      print(self.Midi_Comm.Midi_Device)
+      
+
+   def __init__(self, Scene, Midi_Device):
       self.Scene = Scene
+      self.Midi_Comm = Midi_Device
       self.Current_Block = 0
       self.Current_Widget = None
       self.Current_Widget_Type = None
 
-      self.Window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+      self.Window = gtk.Window(type=gtk.WINDOW_TOPLEVEL)
       self.Window.connect("delete_event", self.delete_event, None)
       
       # # # # Menu # # # #
@@ -302,6 +334,9 @@ class Nano_Kontrol_Gui:
       self.File_Save = gtk.MenuItem(label='Save...')
       self.File_Dump_Sysex = gtk.MenuItem(label='Dump Sysex')
       self.File_Dump_Sysex.connect("activate", self.Dump_Sysex_Event)
+      self.File_Upload_Scene = gtk.MenuItem(label='Upload Scene')
+      self.File_Upload_Scene.connect("activate", self.Upload_Scene_Event)
+      
       self.File_Quit = gtk.MenuItem(label='Quit')
       self.File_Quit.connect("activate", lambda w: gtk.main_quit())
       
@@ -311,6 +346,8 @@ class Nano_Kontrol_Gui:
       self.File_Save.show()
       self.File_Menu.append(child=self.File_Dump_Sysex)
       self.File_Dump_Sysex.show()
+      self.File_Menu.append(child=self.File_Upload_Scene)
+      self.File_Upload_Scene.show()
       self.File_Menu.append(child=self.File_Quit)
       self.File_Quit.show()
       
@@ -318,7 +355,19 @@ class Nano_Kontrol_Gui:
       self.File_Menu_Item.show()
       self.File_Menu_Item.set_submenu(submenu=self.File_Menu)
       
+      self.Edit_Menu = gtk.Menu()
+      self.Edit_Options = gtk.MenuItem(label='Options...')
+      self.Edit_Options.connect("activate", self.Options_Event)
+      
+      self.Edit_Menu.append(child=self.Edit_Options)
+      self.Edit_Options.show()
+      
+      self.Edit_Menu_Item = gtk.MenuItem(label='Edit')
+      self.Edit_Menu_Item.show()
+      self.Edit_Menu_Item.set_submenu(submenu=self.Edit_Menu)
+
       self.Menu_Bar.append(child=self.File_Menu_Item)
+      self.Menu_Bar.append(child=self.Edit_Menu_Item)
       self.Menu_Bar.show()
 
       self.V_Box_Top = gtk.VBox()

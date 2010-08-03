@@ -28,6 +28,7 @@ Scene_3 = Nano_Kontrol_Scene()
 Scene_4 = Nano_Kontrol_Scene()
 
 Scenes = [Scene_1, Scene_2, Scene_3, Scene_4]
+Midi_Device = Nano_Kontrol_Midi_Comm('/dev/snd/midiC3D0')
 
-Gui = Nano_Kontrol_Gui(Scenes)
+Gui = Nano_Kontrol_Gui(Scenes, Midi_Device)
 Gui.main()
