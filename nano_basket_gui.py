@@ -76,6 +76,7 @@ class Nano_Kontrol_Gui:
          self.Button_Release_Time.set_value(self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Release_Time)
          self.Button_Switch_Type.set_active(index=self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Switch_Type)
       elif (self.Current_Widget == 'Button_B'):
+         self.Button_Assign_Type.set_active(index=self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Assign_Type)
          self.Button_CC.set_value(self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_CC)
          self.Button_Off_Value.set_value(self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Off_Value)
          self.Button_On_Value.set_value(self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_On_Value)
@@ -175,6 +176,12 @@ class Nano_Kontrol_Gui:
             self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Attack_Time = Value
          elif (Input_Widget == 'Release_Time'):
             self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Release_Time = Value
+
+      elif (self.Current_Widget in range(6)):
+         if (Input_Widget == 'CC'):
+            self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].CC = Value
+         elif (Input_Widget == 'MMC_Dev_ID'):
+            self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].MMC_Device_ID = Value
 
    def Combo_Event(self, widget, data=None):
       """Triggered when combobox widget's value (index) is changed.
