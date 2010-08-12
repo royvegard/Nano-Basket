@@ -195,28 +195,66 @@ class Nano_Kontrol_Scene:
       [0,]
 
       return Parameter_List
+      
+   def Parse_Data(self, Data):
+      """ """
+      
+      if (len(Data) != 306):
+         return
+         
+      Data_List = list(Data[13:])
+      for i in range(37, 0, -1):
+         Data_List.pop((i-1)*8)
+      
+      Scene_Name = ''
+      for i in range(12):
+         Scene_Name += chr(Data_List[i])
+      
+      self.Common.Scene_Name = Scene_Name
+      self.Common.Scene_Midi_Channel = Data_List[12]
 
-   def Get_Sysex_String(self):
-      """Return a sysex string that can be sent to the nanoKONTROL
-      device"""
+      i = 0
+      for b in self.Block:
+         b.Block_Midi_Channel = Data_List[16+i*23]
+         b.Slider_Assign_Type = Data_List[17+i*23]
+         b.Slider_CC =          Data_List[18+i*23]
+         b.Slider_Min_Value =   Data_List[19+i*23]
+         b.Slider_Max_Value =   Data_List[20+i*23]
 
-      Sysex_List = self.Get_List()
-      # Inser a '0' every 8th index
-      for i in range(37):
-         Sysex_List.insert(i*8, 0)
+         b.Knob_Assign_Type =   Data_List[21+i*23]
+         b.Knob_CC =            Data_List[22+i*23]
+         b.Knob_Min_Value =     Data_List[23+i*23]
+         b.Knob_Max_Value =     Data_List[24+i*23]
 
-      Sysex_String = '\xf0\x42\x40' # Exclusive Header
-      Sysex_String = Sysex_String + '\x00\x01\x04\x00' # Software Project (nanoKONTROL: 000104H)
-      Sysex_String = Sysex_String + '\x7f' # Data Dump Command  (Host<->Controller, Variable Format)
-      Sysex_String = Sysex_String + '\x7f' # Over 0x7F Data
-      Sysex_String = Sysex_String + '\x02' # 2Bytes structure
-      Sysex_String = Sysex_String + '\x02' # Num of Data MSB (1+293 bytes : B'100100110)
-      Sysex_String = Sysex_String + '\x26' # Num of Data LSB
-      Sysex_String = Sysex_String + '\x40' # Current Scene Data Dump
-      Sysex_String = Sysex_String + struct.pack('b7cb5c279b', *(Sysex_List)) # Data
-      Sysex_String = Sysex_String + '\xf7' # End of Exclusive (EOX)
+         b.SW_A_Assign_Type =   Data_List[25+i*23]
+         b.SW_A_CC =            Data_List[26+i*23]
+         b.SW_A_Off_Value =     Data_List[27+i*23]
+         b.SW_A_On_Value =      Data_List[28+i*23]
+         b.SW_A_Attack_Time =   Data_List[29+i*23]
+         b.SW_A_Release_Time =  Data_List[30+i*23]
+         b.SW_A_Switch_Type =   Data_List[31+i*23]
 
-      return Sysex_String
+         b.SW_B_Assign_Type =   Data_List[32+i*23]
+         b.SW_B_CC =            Data_List[33+i*23]
+         b.SW_B_Off_Value =     Data_List[34+i*23]
+         b.SW_B_On_Value =      Data_List[35+i*23]
+         b.SW_B_Attack_Time =   Data_List[36+i*23]
+         b.SW_B_Release_Time =  Data_List[37+i*23]
+         b.SW_B_Switch_Type =   Data_List[38+i*23]
+         
+         i += 1
+      
+      self.Transport_Midi_Channel = Data_List[224]
+      
+      i = 0
+      for b in self.Transport_Button:
+         b.Assign_Type =     Data_List[225+i*5]
+         b.CC =              Data_List[226+i*5]
+         b.MMC_Command =     Data_List[227+i*5]
+         b.MMC_Device_ID =   Data_List[228+i*5]
+         b.Switch_Type =     Data_List[229+i*5]
+         
+         i += 1
 
 class Nano_Kontrol_Midi_Comm:
    """Communicates with the device."""
@@ -232,7 +270,9 @@ class Nano_Kontrol_Midi_Comm:
       elif (Scene_Number < 0):
          Scene_Number = 0
 
-      Sysex_String = '\xf0\x42\x40' # Exclusive Header
+      Global_Channel = self.Search_Device_Request(Scene_Number)[4]
+      Sysex_String = '\xf0\x42' # Exclusive Header
+      Sysex_String = Sysex_String + struct.pack('B', 0x40 + Global_Channel)
       Sysex_String = Sysex_String + '\x00\x01\x04\x00' # Software Project (nanoKONTROL: 000104H)
       Sysex_String = Sysex_String + '\x1f' # Data Dump Command  (Host->Controller, 2Bytes Format)
       Sysex_String = Sysex_String + '\x14' # Scene Change Request
@@ -247,11 +287,28 @@ class Nano_Kontrol_Midi_Comm:
       if (struct.unpack('11B', Response)[9] == Scene_Number):
          print('Scene change Success!')
 
-   def Scene_Upload_Request(self, Sysex_String, Scene_Number=None):
+   def Scene_Upload_Request(self, Scene_List, Scene_Number=None):
       """Writes a scene configuration to the device.
       Note that the configuration is only temporarily stored.
       To permanently write it to the device's memory, issue
       a Scene_Write_Request."""
+
+      # Inser a '0' every 8th index
+      for i in range(37):
+         Scene_List.insert(i*8, 0)
+
+      Global_Channel = self.Search_Device_Request(Scene_Number)[4]
+      Sysex_String = '\xf0\x42' # Exclusive Header
+      Sysex_String = Sysex_String + struct.pack('B', 0x40 + Global_Channel)
+      Sysex_String = Sysex_String + '\x00\x01\x04\x00' # Software Project (nanoKONTROL: 000104H)
+      Sysex_String = Sysex_String + '\x7f' # Data Dump Command  (Host<->Controller, Variable Format)
+      Sysex_String = Sysex_String + '\x7f' # Over 0x7F Data
+      Sysex_String = Sysex_String + '\x02' # 2Bytes structure
+      Sysex_String = Sysex_String + '\x02' # Num of Data MSB (1+293 bytes : B'100100110)
+      Sysex_String = Sysex_String + '\x26' # Num of Data LSB
+      Sysex_String = Sysex_String + '\x40' # Current Scene Data Dump
+      Sysex_String = Sysex_String + struct.pack('b7cb5c279b', *(Scene_List)) # Data
+      Sysex_String = Sysex_String + '\xf7' # End of Exclusive (EOX)
 
       if (Scene_Number):
          self.Scene_Change_Request(Scene_Number)
@@ -272,7 +329,9 @@ class Nano_Kontrol_Midi_Comm:
       if (Scene_Number):
          self.Scene_Change_Request(Scene_Number)
 
-      Sysex_String = '\xf0\x42\x40' # Exclusive Header
+      Global_Channel = self.Search_Device_Request(Scene_Number)[4]
+      Sysex_String = '\xf0\x42' # Exclusive Header
+      Sysex_String = Sysex_String + struct.pack('B', 0x40 + Global_Channel)
       Sysex_String = Sysex_String + '\x00\x01\x04\x00' # Software Project (nanoKONTROL: 000104H)
       Sysex_String = Sysex_String + '\x1f' # Data Dump Command  (Host->Controller, 2Bytes Format)
       Sysex_String = Sysex_String + '\x10' # Scene Dump Request
@@ -281,10 +340,10 @@ class Nano_Kontrol_Midi_Comm:
 
       Device = open(self.Midi_Device, 'r+')
       Device.write(Sysex_String)
-      Response = Device.read(293)
+      Response = Device.read(306)
       Device.close()
 
-      print(struct.unpack('293B', Response))
+      return struct.unpack('306B', Response)
 
    def Scene_Write_Request(self, Scene_Number=0):
       """Writes the current scene data into the internal memory.
@@ -296,7 +355,9 @@ class Nano_Kontrol_Midi_Comm:
       elif (Scene_Number < 0):
          Scene_Number = 0
 
-      Sysex_String = '\xf0\x42\x40' # Exclusive Header
+      Global_Channel = self.Search_Device_Request(Scene_Number)[4]
+      Sysex_String = '\xf0\x42' # Exclusive Header
+      Sysex_String = Sysex_String + struct.pack('B', 0x40 + Global_Channel)
       Sysex_String = Sysex_String + '\x00\x01\x04\x00' # Software Project (nanoKONTROL: 000104H)
       Sysex_String = Sysex_String + '\x1f' # Data Dump Command  (Host->Controller, 2Bytes Format)
       Sysex_String = Sysex_String + '\x11' # Scene Write Request
@@ -316,8 +377,25 @@ class Nano_Kontrol_Midi_Comm:
       elif (struct.unpack('22B', Response)[8+11] == 0x22):
          print('Scene write Fail!')
 
+   def Search_Device_Request(self, Scene_Number=0):
+      if (Scene_Number > 3):
+         Scene_Number = 3
+      elif (Scene_Number < 0):
+         Scene_Number = 0
+
+      Sysex_String = '\xf0\x42\x50' # Exclusive Header
+      Sysex_String = Sysex_String + '\x00\x01'
+      Sysex_String = Sysex_String + '\xf7' # End of Exclusive (EOX)
+
+      Device = open(self.Midi_Device, 'r+')
+      Device.write(Sysex_String)
+      Response = Device.read(15)
+      Device.close()
+
+      return struct.unpack('15B', Response)
 
 if (__name__ == '__main__'):
    Nano_Scene = Nano_Kontrol_Scene()
    Midi_Comm = Nano_Kontrol_Midi_Comm('/dev/snd/midiC3D0')
    Midi_Comm.Scene_Change_Request(0)
+   Nano_Scene.Parse_Data(Midi_Comm.Scene_Dump_Request())

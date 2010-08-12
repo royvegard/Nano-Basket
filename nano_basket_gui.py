@@ -57,6 +57,10 @@ class Nano_Kontrol_Gui:
          self.Transport_Control_Table.show()
 
       # Read values from the backend datastore into the control widgets.
+      self.Scene_Midi_Channel.set_active(index=self.Scene[self.Current_Scene].Common.Scene_Midi_Channel)
+      self.Scene_Name.set_text(text=self.Scene[self.Current_Scene].Common.Scene_Name)
+      self.Transport_Midi_Channel.set_active(index=self.Scene[self.Current_Scene].Transport_Midi_Channel)
+
       if (self.Current_Widget == 'Slider'):
          self.Slider_Assign_Type.set_active(index=self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_Assign_Type)
          self.Slider_CC.set_value(self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_CC)
@@ -278,25 +282,28 @@ class Nano_Kontrol_Gui:
          if (Radio_Buttons[i].get_active()):
             self.Current_Scene = i
 
-      self.Scene_Midi_Channel.set_active(index=self.Scene[self.Current_Scene].Common.Scene_Midi_Channel)
-      self.Scene_Name.set_text(text=self.Scene[self.Current_Scene].Common.Scene_Name)
-      self.Transport_Midi_Channel.set_active(index=self.Scene[self.Current_Scene].Transport_Midi_Channel)
       # Fire off the Focus_Event so that the control widgets
       # get populated with values from the new scene.
       self.Focus_Event(widget=None, event=None,
                        data={'Block':self.Current_Block, 'Widget':self.Current_Widget, 'Widget_Type':self.Current_Widget_Type})
       return False
 
-   def Dump_Sysex_Event(self, widget, data=None):
-      f = open('/tmp/dump.syx', 'w')
-      f.write(self.Scene[self.Current_Scene].Get_Sysex_String())
-      f.close()
-
    def Upload_Scene_Event(self, widget, data=None):
       self.Midi_Comm.Scene_Change_Request(Scene_Number=self.Current_Scene)
-      Scene_Sysex = self.Scene[self.Current_Scene].Get_Sysex_String()
-      self.Midi_Comm.Scene_Upload_Request(Sysex_String=Scene_Sysex, Scene_Number=self.Current_Scene)
+      Scene_List = self.Scene[self.Current_Scene].Get_List()
+      self.Midi_Comm.Scene_Upload_Request(Scene_List=Scene_List, Scene_Number=self.Current_Scene)
       self.Midi_Comm.Scene_Write_Request(Scene_Number=self.Current_Scene)
+
+   def Download_Scene_Event(self, widget, data=None):
+      self.Midi_Comm.Scene_Change_Request(Scene_Number=self.Current_Scene)
+      Scene_Data = self.Midi_Comm.Scene_Dump_Request()
+      self.Scene[self.Current_Scene].Parse_Data(Scene_Data)
+      # Fire off the Focus_Event so that the control widgets
+      # get populated with values from the new scene.
+      self.Focus_Event(widget=None, event=None,
+                       data={'Block':self.Current_Block, 'Widget':self.Current_Widget, 'Widget_Type':self.Current_Widget_Type})
+      return False
+
 
    def Options_Event(self, widget, data=None):
       Option_Dialog = gtk.Dialog(title='Options', parent=self.Window, flags=0,
@@ -339,10 +346,10 @@ class Nano_Kontrol_Gui:
       self.File_Menu = gtk.Menu()
       self.File_Open = gtk.MenuItem(label='Open...')
       self.File_Save = gtk.MenuItem(label='Save...')
-      self.File_Dump_Sysex = gtk.MenuItem(label='Dump Sysex')
-      self.File_Dump_Sysex.connect("activate", self.Dump_Sysex_Event)
-      self.File_Upload_Scene = gtk.MenuItem(label='Upload Scene')
+      self.File_Upload_Scene = gtk.MenuItem(label='Upload Scene to Device')
       self.File_Upload_Scene.connect("activate", self.Upload_Scene_Event)
+      self.File_Download_Scene = gtk.MenuItem(label='Download Scene from Device')
+      self.File_Download_Scene.connect("activate", self.Download_Scene_Event)
       
       self.File_Quit = gtk.MenuItem(label='Quit')
       self.File_Quit.connect("activate", lambda w: gtk.main_quit())
@@ -351,10 +358,10 @@ class Nano_Kontrol_Gui:
       self.File_Open.show()
       self.File_Menu.append(child=self.File_Save)
       self.File_Save.show()
-      self.File_Menu.append(child=self.File_Dump_Sysex)
-      self.File_Dump_Sysex.show()
       self.File_Menu.append(child=self.File_Upload_Scene)
       self.File_Upload_Scene.show()
+      self.File_Menu.append(child=self.File_Download_Scene)
+      self.File_Download_Scene.show()
       self.File_Menu.append(child=self.File_Quit)
       self.File_Quit.show()
       
