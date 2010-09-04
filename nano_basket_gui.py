@@ -314,7 +314,6 @@ class Nano_Kontrol_Gui:
       
       Midi_Device_Label = gtk.Label(str='Midi device:')
       Midi_Device_Entry = gtk.Entry()
-      Midi_Device_Entry.set_text(self.Midi_Comm.Midi_Device)
       H_Box.pack_start(child=Midi_Device_Label, expand=False, fill=False, padding=2)
       H_Box.pack_start(child=Midi_Device_Entry, expand=False, fill=False, padding=2)
       Midi_Device_Label.show()
@@ -323,11 +322,8 @@ class Nano_Kontrol_Gui:
       #H_Box.show()
       
       Response = Option_Dialog.run()
-      if (Response == gtk.RESPONSE_OK):
-         self.Midi_Comm.Midi_Device = Midi_Device_Entry.get_text()
       
       Option_Dialog.destroy()
-      print(self.Midi_Comm.Midi_Device)
       
 
    def __init__(self, Scene, Midi_Device):
