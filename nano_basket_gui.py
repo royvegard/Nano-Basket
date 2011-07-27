@@ -312,15 +312,6 @@ class Nano_Kontrol_Gui:
       
       H_Box = Option_Dialog.get_content_area()
       
-      Midi_Device_Label = gtk.Label(str='Midi device:')
-      Midi_Device_Entry = gtk.Entry()
-      H_Box.pack_start(child=Midi_Device_Label, expand=False, fill=False, padding=2)
-      H_Box.pack_start(child=Midi_Device_Entry, expand=False, fill=False, padding=2)
-      Midi_Device_Label.show()
-      Midi_Device_Entry.show()
-      #Option_Dialog.add(H_Box)
-      #H_Box.show()
-      
       Response = Option_Dialog.run()
       
       Option_Dialog.destroy()

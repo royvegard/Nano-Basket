@@ -276,7 +276,7 @@ class Nano_Kontrol_Alsa_Midi_Comm:
 
 
    def Scene_Change_Request(self, Scene_Number=0):
-      """Sends a scene change request to th device."""
+      """Sends a scene change request to the device."""
 
       if (Scene_Number > 3):
          Scene_Number = 3
@@ -292,11 +292,13 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       Sysex.extend([Scene_Number])
       Sysex.extend([0xf7]) # End of Exclusive (EOX)
 
+      self.Flush_Events()
+
       self.Event.set_data({'ext': Sysex})
       self.Seq.output_event(self.Event)
       self.Seq.drain_output()
       time.sleep(self.Response_Wait)
-      Response = self.Seq.receive_events(timeout=1000, maxevents = 1000)
+      Response = self.Seq.receive_events(timeout=1000, maxevents = 200)
       
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
@@ -327,6 +329,8 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       Sysex.extend(Scene_List) # Data
       Sysex.extend([0xf7]) # End of Exclusive (EOX)
 
+      self.Flush_Events()
+
       if (Scene_Number):
          self.Scene_Change_Request(Scene_Number)
 
@@ -334,7 +338,7 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       self.Seq.output_event(self.Event)
       self.Seq.drain_output()
       time.sleep(self.Response_Wait)
-      Response = self.Seq.receive_events(timeout=1000, maxevents = 1000)
+      Response = self.Seq.receive_events(timeout=1000, maxevents = 200)
       
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
@@ -359,11 +363,13 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       Sysex.extend([0x00]) # Padding
       Sysex.extend([0xf7]) # End of Exclusive (EOX)
 
+      self.Flush_Events()
+
       self.Event.set_data({'ext': Sysex})
       self.Seq.output_event(self.Event)
       self.Seq.drain_output()
       time.sleep(self.Response_Wait)
-      Response = self.Seq.receive_events(timeout=1000, maxevents = 1000)
+      Response = self.Seq.receive_events(timeout=1000, maxevents = 200)
       
       Data = []
       for Res in Response:
@@ -390,11 +396,13 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       Sysex.extend([Scene_Number])
       Sysex.extend([0xf7]) # End of Exclusive (EOX)
 
+      self.Flush_Events()
+
       self.Event.set_data({'ext': Sysex})
       self.Seq.output_event(self.Event)
       self.Seq.drain_output()
       time.sleep(self.Response_Wait)
-      Response = self.Seq.receive_events(timeout=1000, maxevents = 1000)
+      Response = self.Seq.receive_events(timeout=1000, maxevents = 200)
       
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
@@ -409,18 +417,25 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       Sysex.extend([0x00,  0x01])
       Sysex.extend([0xf7]) # End of Exclusive (EOX)
 
+      self.Flush_Events()
+
       self.Event.set_data({'ext': Sysex})
       self.Seq.output_event(self.Event)
       self.Seq.drain_output()
       time.sleep(self.Response_Wait)
-      Response = self.Seq.receive_events(timeout=1000, maxevents = 1000)
+      Response = self.Seq.receive_events(timeout=1000, maxevents = 200)
       
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
-            return Res.get_data()['ext']
+            if (Res.get_data()['ext'][0:4] == [0xf0,  0x42,  0x50,  0x01]):
+               print('Got device')
+               return Res.get_data()['ext']
       
       print('no response device request')
 
+   def Flush_Events(self):
+      while (self.Seq.receive_events(maxevents = 200)):
+         pass
 
 if (__name__ == '__main__'):
    Nano_Scene = Nano_Kontrol_Scene()
