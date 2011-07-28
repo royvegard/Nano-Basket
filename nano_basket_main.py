@@ -26,8 +26,9 @@ Scene_1 = Nano_Kontrol_Scene()
 Scene_2 = Nano_Kontrol_Scene()
 Scene_3 = Nano_Kontrol_Scene()
 Scene_4 = Nano_Kontrol_Scene()
+Clipboard_Scene = Nano_Kontrol_Scene()
 
-Scenes = [Scene_1, Scene_2, Scene_3, Scene_4]
+Scenes = [Scene_1, Scene_2, Scene_3, Scene_4, Clipboard_Scene]
 Midi_Device = Nano_Kontrol_Alsa_Midi_Comm()
 
 Gui = Nano_Kontrol_Gui(Scenes, Midi_Device)

@@ -19,6 +19,7 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Nano Basket.  If not, see <http://www.gnu.org/licenses/>.
 
+import copy
 import pygtk
 pygtk.require('2.0')
 import gtk
@@ -190,11 +191,11 @@ class Nano_Kontrol_Gui:
    def Combo_Event(self, widget, data=None):
       """Triggered when combobox widget's value (index) is changed.
       The changed value (index) is stored in the backend datastore."""
-      
+
       print('Combo_Event')
       Value = widget.get_active()
       Input_Widget = data['Widget']
-      
+
       # Read value from widget, and store the value in the backend datastore.
       if (Input_Widget == 'Scene_Midi_Channel'):
          self.Scene[self.Current_Scene].Common.Scene_Midi_Channel = Value
@@ -304,18 +305,18 @@ class Nano_Kontrol_Gui:
                        data={'Block':self.Current_Block, 'Widget':self.Current_Widget, 'Widget_Type':self.Current_Widget_Type})
       return False
 
+   def Copy_Scene_Event (self, widget, data=None):
+      self.Scene[-1] = copy.deepcopy(self.Scene[self.Current_Scene])
+      return False
 
-   def Options_Event(self, widget, data=None):
-      Option_Dialog = gtk.Dialog(title='Options', parent=self.Window, flags=0,
-         buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
-                  gtk.STOCK_OK, gtk.RESPONSE_OK))
-      
-      H_Box = Option_Dialog.get_content_area()
-      
-      Response = Option_Dialog.run()
-      
-      Option_Dialog.destroy()
-      
+   def Paste_Scene_Event (self, widget, data=None):
+      self.Scene[self.Current_Scene] = copy.deepcopy(self.Scene[-1])
+      # Fire off the Focus_Event so that the control widgets
+      # get populated with values from the new scene.
+      self.Focus_Event(widget=None, event=None,
+                       data={'Block':self.Current_Block, 'Widget':self.Current_Widget, 'Widget_Type':self.Current_Widget_Type})
+      return False
+
 
    def __init__(self, Scene, Midi_Device):
       self.Scene = Scene
@@ -326,7 +327,7 @@ class Nano_Kontrol_Gui:
 
       self.Window = gtk.Window(type=gtk.WINDOW_TOPLEVEL)
       self.Window.connect("delete_event", self.delete_event, None)
-      
+
       # # # # Menu # # # #
       ####################
       self.Menu_Bar = gtk.MenuBar()
@@ -337,10 +338,10 @@ class Nano_Kontrol_Gui:
       self.File_Upload_Scene.connect("activate", self.Upload_Scene_Event)
       self.File_Download_Scene = gtk.MenuItem(label='Download Scene from Device')
       self.File_Download_Scene.connect("activate", self.Download_Scene_Event)
-      
+
       self.File_Quit = gtk.MenuItem(label='Quit')
       self.File_Quit.connect("activate", lambda w: gtk.main_quit())
-      
+
       self.File_Menu.append(child=self.File_Open)
       self.File_Open.show()
       self.File_Menu.append(child=self.File_Save)
@@ -351,18 +352,22 @@ class Nano_Kontrol_Gui:
       self.File_Download_Scene.show()
       self.File_Menu.append(child=self.File_Quit)
       self.File_Quit.show()
-      
+
       self.File_Menu_Item = gtk.MenuItem(label='File')
       self.File_Menu_Item.show()
       self.File_Menu_Item.set_submenu(submenu=self.File_Menu)
-      
+
       self.Edit_Menu = gtk.Menu()
-      self.Edit_Options = gtk.MenuItem(label='Options...')
-      self.Edit_Options.connect("activate", self.Options_Event)
-      
-      self.Edit_Menu.append(child=self.Edit_Options)
-      self.Edit_Options.show()
-      
+      self.Edit_Copy = gtk.MenuItem(label='Copy Scene')
+      self.Edit_Copy.connect("activate", self.Copy_Scene_Event)
+      self.Edit_Paste = gtk.MenuItem(label='Paste Scene')
+      self.Edit_Paste.connect("activate", self.Paste_Scene_Event)
+
+      self.Edit_Menu.append(child=self.Edit_Copy)
+      self.Edit_Menu.append(child=self.Edit_Paste)
+      self.Edit_Copy.show()
+      self.Edit_Paste.show()
+
       self.Edit_Menu_Item = gtk.MenuItem(label='Edit')
       self.Edit_Menu_Item.show()
       self.Edit_Menu_Item.set_submenu(submenu=self.Edit_Menu)
@@ -396,7 +401,7 @@ class Nano_Kontrol_Gui:
       self.Transport_Record = gtk.Button('REC')
       self.Transport_Record.connect("focus-in-event", self.Focus_Event,
                                   {'Widget':5, 'Widget_Type':'Transport'})
-      
+
       self.Scene_H_Box = gtk.HBox()
       self.Scene_Button = gtk.Button('SCENE')
       self.Scene_Button.connect("clicked", self.Scene_Cycle_Event, {'Type':'Cyclic',})
@@ -428,7 +433,7 @@ class Nano_Kontrol_Gui:
       self.Scene_3_Light.show()
       self.Scene_4_Light.show()
       self.Scene_H_Box.show()
-      
+
       self.Transport_Table.attach(child=self.Transport_Rewind,
                                   left_attach=0,
                                   right_attach=1,
@@ -477,11 +482,13 @@ class Nano_Kontrol_Gui:
       self.Block_1_Table = gtk.Table(rows=4, columns=2)
       self.Block_1_Label = gtk.Label()
       self.Block_1_Label.set_markup('<span foreground="black">1</span>')
-      self.Block_1_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_1_Slider = gtk.VScale(adjustment=adj)
       self.Block_1_Slider.set_draw_value(draw_value=False)
       self.Block_1_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':0, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_1_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_1_Knob = gtk.HScale(adjustment=adj)
       self.Block_1_Knob.set_draw_value(draw_value=False)
       self.Block_1_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':0, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -530,11 +537,13 @@ class Nano_Kontrol_Gui:
       self.Block_2_Table = gtk.Table(rows=3, columns=2)
       self.Block_2_Label = gtk.Label()
       self.Block_2_Label.set_markup('<span foreground="black">2</span>')
-      self.Block_2_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_2_Slider = gtk.VScale(adjustment=adj)
       self.Block_2_Slider.set_draw_value(draw_value=False)
       self.Block_2_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':1, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_2_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_2_Knob = gtk.HScale(adjustment=adj)
       self.Block_2_Knob.set_draw_value(draw_value=False)
       self.Block_2_Knob.connect("focus-in-event", self.Focus_Event,
                                   {'Block':1, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -583,11 +592,13 @@ class Nano_Kontrol_Gui:
       self.Block_3_Table = gtk.Table(rows=3, columns=2)
       self.Block_3_Label = gtk.Label()
       self.Block_3_Label.set_markup('<span foreground="black">3</span>')
-      self.Block_3_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_3_Slider = gtk.VScale(adjustment=adj)
       self.Block_3_Slider.set_draw_value(draw_value=False)
       self.Block_3_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':2, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_3_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_3_Knob = gtk.HScale(adjustment=adj)
       self.Block_3_Knob.set_draw_value(draw_value=False)
       self.Block_3_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':2, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -636,11 +647,13 @@ class Nano_Kontrol_Gui:
       self.Block_4_Table = gtk.Table(rows=3, columns=2)
       self.Block_4_Label = gtk.Label()
       self.Block_4_Label.set_markup('<span foreground="black">4</span>')
-      self.Block_4_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_4_Slider = gtk.VScale(adjustment=adj)
       self.Block_4_Slider.set_draw_value(draw_value=False)
       self.Block_4_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':3, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_4_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_4_Knob = gtk.HScale(adjustment=adj)
       self.Block_4_Knob.set_draw_value(draw_value=False)
       self.Block_4_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':3, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -689,11 +702,13 @@ class Nano_Kontrol_Gui:
       self.Block_5_Table = gtk.Table(rows=3, columns=2)
       self.Block_5_Label = gtk.Label()
       self.Block_5_Label.set_markup('<span foreground="black">5</span>')
-      self.Block_5_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_5_Slider = gtk.VScale(adjustment=adj)
       self.Block_5_Slider.set_draw_value(draw_value=False)
       self.Block_5_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':4, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_5_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_5_Knob = gtk.HScale(adjustment=adj)
       self.Block_5_Knob.set_draw_value(draw_value=False)
       self.Block_5_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':4, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -742,11 +757,13 @@ class Nano_Kontrol_Gui:
       self.Block_6_Table = gtk.Table(rows=3, columns=2)
       self.Block_6_Label = gtk.Label()
       self.Block_6_Label.set_markup('<span foreground="black">6</span>')
-      self.Block_6_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_6_Slider = gtk.VScale(adjustment=adj)
       self.Block_6_Slider.set_draw_value(draw_value=False)
       self.Block_6_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':5, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_6_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_6_Knob = gtk.HScale(adjustment=adj)
       self.Block_6_Knob.set_draw_value(draw_value=False)
       self.Block_6_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':5, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -795,11 +812,13 @@ class Nano_Kontrol_Gui:
       self.Block_7_Table = gtk.Table(rows=3, columns=2)
       self.Block_7_Label = gtk.Label()
       self.Block_7_Label.set_markup('<span foreground="black">7</span>')
-      self.Block_7_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_7_Slider = gtk.VScale(adjustment=adj)
       self.Block_7_Slider.set_draw_value(draw_value=False)
       self.Block_7_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':6, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_7_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_7_Knob = gtk.HScale(adjustment=adj)
       self.Block_7_Knob.set_draw_value(draw_value=False)
       self.Block_7_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':6, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -848,11 +867,13 @@ class Nano_Kontrol_Gui:
       self.Block_8_Table = gtk.Table(rows=3, columns=2)
       self.Block_8_Label = gtk.Label()
       self.Block_8_Label.set_markup('<span foreground="black">8</span>')
-      self.Block_8_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_8_Slider = gtk.VScale(adjustment=adj)
       self.Block_8_Slider.set_draw_value(draw_value=False)
       self.Block_8_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':7, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_8_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_8_Knob = gtk.HScale(adjustment=adj)
       self.Block_8_Knob.set_draw_value(draw_value=False)
       self.Block_8_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':7, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -901,11 +922,13 @@ class Nano_Kontrol_Gui:
       self.Block_9_Table = gtk.Table(rows=3, columns=2)
       self.Block_9_Label = gtk.Label()
       self.Block_9_Label.set_markup('<span foreground="black">9</span>')
-      self.Block_9_Slider = gtk.VScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_9_Slider = gtk.VScale(adjustment=adj)
       self.Block_9_Slider.set_draw_value(draw_value=False)
       self.Block_9_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':8, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      self.Block_9_Knob = gtk.HScale(adjustment=None)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Block_9_Knob = gtk.HScale(adjustment=adj)
       self.Block_9_Knob.set_draw_value(draw_value=False)
       self.Block_9_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':8, 'Widget':'Knob', 'Widget_Type':'Slider'})
@@ -1060,7 +1083,8 @@ class Nano_Kontrol_Gui:
       self.Transport_Assign_Type.connect("changed", self.Combo_Event,
                                          {'Widget':'Assign_Type', 'Widget_Type':'Transport'})
       self.Transport_CC_Label = gtk.Label(str='CC Number:')
-      self.Transport_CC = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Transport_CC = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Transport_CC.set_range(min=0, max=127)
       self.Transport_CC.set_numeric(numeric=True)
       self.Transport_CC.connect("value-changed", self.Spin_Event,
@@ -1083,7 +1107,8 @@ class Nano_Kontrol_Gui:
       self.Transport_MMC_Command.connect("changed", self.Combo_Event,
                                          {'Widget':'MMC_Command', 'Widget_Type':'Transport'})
       self.Transport_MMC_Dev_ID_Label = gtk.Label(str='MMC Device ID:')
-      self.Transport_MMC_Dev_ID = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Transport_MMC_Dev_ID = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Transport_MMC_Dev_ID.set_range(min=0, max=127)
       self.Transport_MMC_Dev_ID.set_numeric(numeric=True)
       self.Transport_MMC_Dev_ID.connect("value-changed", self.Spin_Event,
@@ -1094,7 +1119,7 @@ class Nano_Kontrol_Gui:
       self.Transport_Switch_Type.append_text('Toggle')
       self.Transport_Switch_Type.connect("changed", self.Combo_Event,
                                          {'Widget':'Switch_Type', 'Widget_Type':'Transport'})
-      
+
       self.Transport_Control_Table.attach(child=self.Transport_Assign_Type_Label,
                                           left_attach=0,
                                           right_attach=1,
@@ -1156,7 +1181,7 @@ class Nano_Kontrol_Gui:
                                           bottom_attach=1)
       self.Transport_Switch_Type.show()
 
-      
+
       # # # # Slider and Knob controls # # # #
       ########################################
       self.Slider_Knob_Control_Table = gtk.Table(rows=4, columns=2)
@@ -1167,19 +1192,22 @@ class Nano_Kontrol_Gui:
       self.Slider_Assign_Type.connect("changed", self.Combo_Event,
                                       {'Widget':'Assign_Type', 'Widget_Type':'Slider'})
       self.Slider_CC_Label = gtk.Label(str='CC number:')
-      self.Slider_CC = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Slider_CC = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Slider_CC.set_range(min=0, max=127)
       self.Slider_CC.set_numeric(numeric=True)
       self.Slider_CC.connect("value-changed", self.Spin_Event,
                              {'Widget':'CC', 'Widget_Type':'Slider'})
       self.Slider_Min_Value_Label = gtk.Label(str='Min value:')
-      self.Slider_Min_Value = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Slider_Min_Value = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Slider_Min_Value.set_range(min=0, max=127)
       self.Slider_Min_Value.set_numeric(numeric=True)
       self.Slider_Min_Value.connect("value-changed", self.Spin_Event,
                                     {'Widget':'Min_Value', 'Widget_Type':'Slider'})
       self.Slider_Max_Value_Label = gtk.Label(str='Max value:')
-      self.Slider_Max_Value = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Slider_Max_Value = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Slider_Max_Value.set_range(min=0, max=127)
       self.Slider_Max_Value.set_numeric(numeric=True)
       self.Slider_Max_Value.connect("value-changed", self.Spin_Event,
@@ -1246,27 +1274,32 @@ class Nano_Kontrol_Gui:
       self.Button_Assign_Type.connect("changed", self.Combo_Event,
                                       {'Widget':'Assign_Type', 'Widget_Type':'Button'})
       self.Button_CC_Label = gtk.Label(str='CC/Note number:')
-      self.Button_CC = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Button_CC = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Button_CC.set_range(min=0, max=127)
       self.Button_CC.connect("value-changed", self.Spin_Event,
                              {'Widget':'CC', 'Widget_Type':'Button'})
       self.Button_Off_Value_Label = gtk.Label(str='Off value:')
-      self.Button_Off_Value = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Button_Off_Value = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Button_Off_Value.set_range(min=0, max=127)
       self.Button_Off_Value.connect("value-changed", self.Spin_Event,
                                     {'Widget':'Off_Value', 'Widget_Type':'Button'})
       self.Button_On_Value_Label = gtk.Label(str='On value:')
-      self.Button_On_Value = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Button_On_Value = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Button_On_Value.set_range(min=0, max=127)
       self.Button_On_Value.connect("value-changed", self.Spin_Event,
                                    {'Widget':'On_Value', 'Widget_Type':'Button'})
       self.Button_Attack_Time_Label = gtk.Label(str='Attack time:')
-      self.Button_Attack_Time = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Button_Attack_Time = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Button_Attack_Time.set_range(min=0, max=127)
       self.Button_Attack_Time.connect("value-changed", self.Spin_Event,
                                       {'Widget':'Attack_Time', 'Widget_Type':'Button'})
       self.Button_Release_Time_Label = gtk.Label(str='Release time:')
-      self.Button_Release_Time = gtk.SpinButton(adjustment=None, climb_rate=0.0, digits=0)
+      adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      self.Button_Release_Time = gtk.SpinButton(adjustment=adj, climb_rate=0.0, digits=0)
       self.Button_Release_Time.set_range(min=0, max=127)
       self.Button_Release_Time.connect("value-changed", self.Spin_Event,
                                        {'Widget':'Release_Time', 'Widget_Type':'Button'})
