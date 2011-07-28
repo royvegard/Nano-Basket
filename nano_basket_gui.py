@@ -317,6 +317,39 @@ class Nano_Kontrol_Gui:
                        data={'Block':self.Current_Block, 'Widget':self.Current_Widget, 'Widget_Type':self.Current_Widget_Type})
       return False
 
+   def Fader_Event (self, widget, data=None):
+      print('Fader Event')
+      print(widget.value)
+      print('Block: ' + str(data['Block']))
+      if (data['Type'] == 'Slider'):
+         Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']].Slider_Assign_Type
+         CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].Slider_CC
+         Min_Value = self.Scene[self.Current_Scene].Block[data['Block']].Slider_Min_Value
+         Max_Value = self.Scene[self.Current_Scene].Block[data['Block']].Slider_Max_Value
+      elif (data['Type'] == 'Knob'):
+         Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']].Knob_Assign_Type
+         CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].Knob_CC
+         Min_Value = self.Scene[self.Current_Scene].Block[data['Block']].Knob_Min_Value
+         Max_Value = self.Scene[self.Current_Scene].Block[data['Block']].Knob_Max_Value
+
+      Block_Midi_Channel = self.Scene[self.Current_Scene].Block[data['Block']].Block_Midi_Channel
+      Midi_Channel = Block_Midi_Channel
+      if (Midi_Channel == 16):
+         Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+
+      print('Max value: ' + str(Max_Value))
+      print('Min value: ' + str(Min_Value))
+      print('CC number: ' + str(CC_Number))
+      print('Assign type: ' + str(Assign_Type))
+      print('Midi Channel: ' + str(Midi_Channel))
+      Midi_Value = int((widget.value/127.0  * (Max_Value - Min_Value) + Min_Value) + 0.5)
+      print('Midi Value: ' + str(Midi_Value))
+
+      if (Assign_Type == 1):
+         self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=Midi_Value)
+
+      return False
+
 
    def __init__(self, Scene, Midi_Device):
       self.Scene = Scene
@@ -483,11 +516,14 @@ class Nano_Kontrol_Gui:
       self.Block_1_Label = gtk.Label()
       self.Block_1_Label.set_markup('<span foreground="black">1</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':0, 'Type':'Slider'})
       self.Block_1_Slider = gtk.VScale(adjustment=adj)
       self.Block_1_Slider.set_draw_value(draw_value=False)
+      self.Block_1_Slider.set_inverted(setting=True)
       self.Block_1_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':0, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':0, 'Type':'Knob'})
       self.Block_1_Knob = gtk.HScale(adjustment=adj)
       self.Block_1_Knob.set_draw_value(draw_value=False)
       self.Block_1_Knob.connect("focus-in-event", self.Focus_Event,
@@ -538,11 +574,14 @@ class Nano_Kontrol_Gui:
       self.Block_2_Label = gtk.Label()
       self.Block_2_Label.set_markup('<span foreground="black">2</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':1, 'Type':'Slider'})
       self.Block_2_Slider = gtk.VScale(adjustment=adj)
       self.Block_2_Slider.set_draw_value(draw_value=False)
+      self.Block_2_Slider.set_inverted(setting=True)
       self.Block_2_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':1, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':1, 'Type':'Knob'})
       self.Block_2_Knob = gtk.HScale(adjustment=adj)
       self.Block_2_Knob.set_draw_value(draw_value=False)
       self.Block_2_Knob.connect("focus-in-event", self.Focus_Event,
@@ -593,11 +632,14 @@ class Nano_Kontrol_Gui:
       self.Block_3_Label = gtk.Label()
       self.Block_3_Label.set_markup('<span foreground="black">3</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':2, 'Type':'Slider'})
       self.Block_3_Slider = gtk.VScale(adjustment=adj)
       self.Block_3_Slider.set_draw_value(draw_value=False)
+      self.Block_3_Slider.set_inverted(setting=True)
       self.Block_3_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':2, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':2, 'Type':'Knob'})
       self.Block_3_Knob = gtk.HScale(adjustment=adj)
       self.Block_3_Knob.set_draw_value(draw_value=False)
       self.Block_3_Knob.connect("focus-in-event", self.Focus_Event,
@@ -648,11 +690,14 @@ class Nano_Kontrol_Gui:
       self.Block_4_Label = gtk.Label()
       self.Block_4_Label.set_markup('<span foreground="black">4</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':3, 'Type':'Slider'})
       self.Block_4_Slider = gtk.VScale(adjustment=adj)
       self.Block_4_Slider.set_draw_value(draw_value=False)
+      self.Block_4_Slider.set_inverted(setting=True)
       self.Block_4_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':3, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':3, 'Type':'Knob'})
       self.Block_4_Knob = gtk.HScale(adjustment=adj)
       self.Block_4_Knob.set_draw_value(draw_value=False)
       self.Block_4_Knob.connect("focus-in-event", self.Focus_Event,
@@ -703,11 +748,14 @@ class Nano_Kontrol_Gui:
       self.Block_5_Label = gtk.Label()
       self.Block_5_Label.set_markup('<span foreground="black">5</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':4, 'Type':'Slider'})
       self.Block_5_Slider = gtk.VScale(adjustment=adj)
       self.Block_5_Slider.set_draw_value(draw_value=False)
+      self.Block_5_Slider.set_inverted(setting=True)
       self.Block_5_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':4, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':4, 'Type':'Knob'})
       self.Block_5_Knob = gtk.HScale(adjustment=adj)
       self.Block_5_Knob.set_draw_value(draw_value=False)
       self.Block_5_Knob.connect("focus-in-event", self.Focus_Event,
@@ -758,11 +806,14 @@ class Nano_Kontrol_Gui:
       self.Block_6_Label = gtk.Label()
       self.Block_6_Label.set_markup('<span foreground="black">6</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':5, 'Type':'Slider'})
       self.Block_6_Slider = gtk.VScale(adjustment=adj)
       self.Block_6_Slider.set_draw_value(draw_value=False)
+      self.Block_6_Slider.set_inverted(setting=True)
       self.Block_6_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':5, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':5, 'Type':'Knob'})
       self.Block_6_Knob = gtk.HScale(adjustment=adj)
       self.Block_6_Knob.set_draw_value(draw_value=False)
       self.Block_6_Knob.connect("focus-in-event", self.Focus_Event,
@@ -813,11 +864,14 @@ class Nano_Kontrol_Gui:
       self.Block_7_Label = gtk.Label()
       self.Block_7_Label.set_markup('<span foreground="black">7</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':6, 'Type':'Slider'})
       self.Block_7_Slider = gtk.VScale(adjustment=adj)
       self.Block_7_Slider.set_draw_value(draw_value=False)
+      self.Block_7_Slider.set_inverted(setting=True)
       self.Block_7_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':6, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':6, 'Type':'Knob'})
       self.Block_7_Knob = gtk.HScale(adjustment=adj)
       self.Block_7_Knob.set_draw_value(draw_value=False)
       self.Block_7_Knob.connect("focus-in-event", self.Focus_Event,
@@ -868,11 +922,14 @@ class Nano_Kontrol_Gui:
       self.Block_8_Label = gtk.Label()
       self.Block_8_Label.set_markup('<span foreground="black">8</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':7, 'Type':'Slider'})
       self.Block_8_Slider = gtk.VScale(adjustment=adj)
       self.Block_8_Slider.set_draw_value(draw_value=False)
+      self.Block_8_Slider.set_inverted(setting=True)
       self.Block_8_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':7, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':7, 'Type':'Knob'})
       self.Block_8_Knob = gtk.HScale(adjustment=adj)
       self.Block_8_Knob.set_draw_value(draw_value=False)
       self.Block_8_Knob.connect("focus-in-event", self.Focus_Event,
@@ -923,11 +980,14 @@ class Nano_Kontrol_Gui:
       self.Block_9_Label = gtk.Label()
       self.Block_9_Label.set_markup('<span foreground="black">9</span>')
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':8, 'Type':'Slider'})
       self.Block_9_Slider = gtk.VScale(adjustment=adj)
       self.Block_9_Slider.set_draw_value(draw_value=False)
+      self.Block_9_Slider.set_inverted(setting=True)
       self.Block_9_Slider.connect("focus-in-event", self.Focus_Event,
                                   {'Block':8, 'Widget':'Slider', 'Widget_Type':'Slider'})
       adj = gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", self.Fader_Event, {'Block':8, 'Type':'Knob'})
       self.Block_9_Knob = gtk.HScale(adjustment=adj)
       self.Block_9_Knob.set_draw_value(draw_value=False)
       self.Block_9_Knob.connect("focus-in-event", self.Focus_Event,

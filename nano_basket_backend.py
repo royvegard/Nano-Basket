@@ -265,6 +265,7 @@ class Nano_Kontrol_Alsa_Midi_Comm:
    def __init__(self, Midi_Port_Name='Nano Basket MIDI 1'):
       self.Seq = alsaseq.Sequencer(clientname='Nano Basket')
       self.Event = alsaseq.SeqEvent(alsaseq.SEQ_EVENT_SYSEX)
+      self.Controller = alsaseq.SeqEvent(alsaseq.SEQ_EVENT_CONTROLLER)
       self.Port = self.Seq.create_simple_port(name=Midi_Port_Name,
         type=alsaseq.SEQ_PORT_TYPE_APPLICATION,
         caps=alsaseq.SEQ_PORT_CAP_SUBS_READ | \
@@ -436,6 +437,11 @@ class Nano_Kontrol_Alsa_Midi_Comm:
    def Flush_Events(self):
       while (self.Seq.receive_events(maxevents = 200)):
          pass
+
+   def Send_Midi_CC(self, Channel=0, CC=0, Value=0):
+      self.Controller.set_data({'control.channel':Channel, 'control.param':CC, 'control.value':Value})
+      self.Seq.output_event(self.Controller)
+      self.Seq.drain_output()
 
 if (__name__ == '__main__'):
    Nano_Scene = Nano_Kontrol_Scene()
