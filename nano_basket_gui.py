@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #   Nano Basket
-#   Copyright (C) 2010 Roy Vegard Ovesen <roy.v.ovesen@haugnett.no>
+#   Copyright (C) 2011 Roy Vegard Ovesen <roy.vegard.ovesen@gmail.com>
 
 
 #   This file is part of Nano Basket.
@@ -290,19 +290,31 @@ class Nano_Kontrol_Gui:
       return False
 
    def Upload_Scene_Event(self, widget, data=None):
-      self.Midi_Comm.Scene_Change_Request(Scene_Number=self.Current_Scene)
-      Scene_List = self.Scene[self.Current_Scene].Get_List()
-      self.Midi_Comm.Scene_Upload_Request(Scene_List=Scene_List, Scene_Number=self.Current_Scene)
-      self.Midi_Comm.Scene_Write_Request(Scene_Number=self.Current_Scene)
+      try:
+         self.Midi_Comm.Scene_Change_Request(Scene_Number=self.Current_Scene)
+         Scene_List = self.Scene[self.Current_Scene].Get_List()
+         self.Midi_Comm.Scene_Upload_Request(Scene_List=Scene_List, Scene_Number=self.Current_Scene)
+         self.Midi_Comm.Scene_Write_Request(Scene_Number=self.Current_Scene)
+      except:
+         self.Status_Bar.push(context_id=self.Status_Bar_Context_ID, text='Error:Upload Scene failed')
+         return False
+
+      self.Status_Bar.push(context_id=self.Status_Bar_Context_ID, text='Uploaded Scene to device')
+      return False
 
    def Download_Scene_Event(self, widget, data=None):
-      self.Midi_Comm.Scene_Change_Request(Scene_Number=self.Current_Scene)
-      Scene_Data = self.Midi_Comm.Scene_Dump_Request()
-      self.Scene[self.Current_Scene].Parse_Data(Scene_Data)
+      try:
+         self.Midi_Comm.Scene_Change_Request(Scene_Number=self.Current_Scene)
+         Scene_Data = self.Midi_Comm.Scene_Dump_Request()
+         self.Scene[self.Current_Scene].Parse_Data(Scene_Data)
+      except:
+         self.Status_Bar.push(context_id=self.Status_Bar_Context_ID, text='Error: Download Scene failed')
+         return False
       # Fire off the Focus_Event so that the control widgets
       # get populated with values from the new scene.
       self.Focus_Event(widget=None, event=None,
                        data={'Block':self.Current_Block, 'Widget':self.Current_Widget, 'Widget_Type':self.Current_Widget_Type})
+      self.Status_Bar.push(context_id=self.Status_Bar_Context_ID, text='Downloaded Scene from device')
       return False
 
    def Copy_Scene_Event (self, widget, data=None):
@@ -347,6 +359,137 @@ class Nano_Kontrol_Gui:
 
       if (Assign_Type == 1):
          self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=Midi_Value)
+
+      return False
+
+   def Button_Pressed_Event (self, widget, data=None):
+      print('Button Pressed Event')
+      if (data['Widget'] == 'Button_A'):
+         Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_Assign_Type
+         CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_CC
+         Off_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_Off_Value
+         On_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_On_Value
+         Switch_Type = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_Switch_Type
+      elif (data['Widget'] == 'Button_B'):
+         Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_Assign_Type
+         CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_CC
+         Off_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_Off_Value
+         On_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_On_Value
+         Switch_Type = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_Switch_Type
+
+      Block_Midi_Channel = self.Scene[self.Current_Scene].Block[data['Block']].Block_Midi_Channel
+      Midi_Channel = Block_Midi_Channel
+      if (Midi_Channel == 16):
+         Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+
+      print('On value: ' + str(On_Value))
+      print('Off value: ' + str(Off_Value))
+      print('CC number: ' + str(CC_Number))
+      print('Assign type: ' + str(Assign_Type))
+      print('Midi Channel: ' + str(Midi_Channel))
+      print('Switch Type: ' + str(Switch_Type))
+      print(widget.get_active())
+
+      if (Assign_Type == 1):
+         if (Switch_Type == 0):
+            self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=On_Value)
+            widget.set_active(True)
+         elif (Switch_Type == 1):
+            Toggle_State = widget.get_active()
+            if (Toggle_State):
+               self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=Off_Value)
+            elif (not Toggle_State):
+               self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=On_Value)
+
+      return False
+
+   def Button_Released_Event (self, widget, data=None):
+      print('Button Released Event')
+      if (data['Widget'] == 'Button_A'):
+         Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_Assign_Type
+         CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_CC
+         Off_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_Off_Value
+         On_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_On_Value
+         Switch_Type = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_Switch_Type
+      elif (data['Widget'] == 'Button_B'):
+         Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_Assign_Type
+         CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_CC
+         Off_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_Off_Value
+         On_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_On_Value
+         Switch_Type = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_Switch_Type
+
+      Block_Midi_Channel = self.Scene[self.Current_Scene].Block[data['Block']].Block_Midi_Channel
+      Midi_Channel = Block_Midi_Channel
+      if (Midi_Channel == 16):
+         Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+
+      print('On value: ' + str(On_Value))
+      print('Off value: ' + str(Off_Value))
+      print('CC number: ' + str(CC_Number))
+      print('Assign type: ' + str(Assign_Type))
+      print('Midi Channel: ' + str(Midi_Channel))
+      print('Switch Type: ' + str(Switch_Type))
+
+      if (Assign_Type == 1 and Switch_Type == 0):
+         self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=Off_Value)
+
+      return False
+
+   def Transport_Button_Pressed_Event(self, widget, data=None):
+      print('Transport_Button_Pressed_Event')
+      Assign_Type = self.Scene[self.Current_Scene].Transport_Button[data['Button']].Assign_Type
+      CC_Number = self.Scene[self.Current_Scene].Transport_Button[data['Button']].CC
+      MMC_Command = self.Scene[self.Current_Scene].Transport_Button[data['Button']].MMC_Command + 1
+      MMC_Device_ID = self.Scene[self.Current_Scene].Transport_Button[data['Button']].MMC_Device_ID
+      Switch_Type = self.Scene[self.Current_Scene].Transport_Button[data['Button']].Switch_Type
+
+      print('Assign type: ' + str(Assign_Type))
+      print('CC: ' + str(CC_Number))
+      print('MMC Command: ' + str(MMC_Command))
+      print('MMC Device ID: ' + str(MMC_Device_ID))
+      print('Switch Type: ' + str(Switch_Type))
+
+      if (Assign_Type == 1):
+         Transport_Midi_Channel = self.Scene[self.Current_Scene].Transport_Midi_Channel
+         Midi_Channel = Transport_Midi_Channel
+         if (Midi_Channel == 16):
+            Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+         if (Switch_Type == 0):
+            self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=127)
+            widget.set_active(True)
+         elif (Switch_Type == 1):
+            Toggle_State = widget.get_active()
+            if (Toggle_State):
+               self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=0)
+            elif (not Toggle_State):
+               self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=127)
+
+      elif (Assign_Type == 2):
+         self.Midi_Comm.Send_Midi_MMC(Device_ID=MMC_Device_ID, Command=MMC_Command)
+         widget.set_active(True)
+
+      return False
+
+   def Transport_Button_Released_Event(self, widget, data=None):
+      Assign_Type = self.Scene[self.Current_Scene].Transport_Button[data['Button']].Assign_Type
+      CC_Number = self.Scene[self.Current_Scene].Transport_Button[data['Button']].CC
+      MMC_Command = self.Scene[self.Current_Scene].Transport_Button[data['Button']].MMC_Command + 1
+      MMC_Device_ID = self.Scene[self.Current_Scene].Transport_Button[data['Button']].MMC_Device_ID
+      Switch_Type = self.Scene[self.Current_Scene].Transport_Button[data['Button']].Switch_Type
+
+      print('Assign type: ' + str(Assign_Type))
+      print('CC: ' + str(CC_Number))
+      print('MMC Command: ' + str(MMC_Command))
+      print('MMC Device ID: ' + str(MMC_Device_ID))
+      print('Switch Type: ' + str(Switch_Type))
+
+      Transport_Midi_Channel = self.Scene[self.Current_Scene].Transport_Midi_Channel
+      Midi_Channel = Transport_Midi_Channel
+      if (Midi_Channel == 16):
+         Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+
+      if (Assign_Type == 1 and Switch_Type == 0):
+         self.Midi_Comm.Send_Midi_CC(Channel=Midi_Channel, CC=CC_Number, Value=0)
 
       return False
 
@@ -416,24 +559,54 @@ class Nano_Kontrol_Gui:
       # # # # Transport and Scene Buttons # # # #
       ###########################################
       self.Transport_Table = gtk.Table(rows=3, columns=3)
-      self.Transport_Rewind = gtk.Button(label='REW')
+      self.Transport_Rewind = gtk.ToggleButton(label='REW')
       self.Transport_Rewind.connect("focus-in-event", self.Focus_Event,
                                     {'Widget':0, 'Widget_Type':'Transport'})
-      self.Transport_Play = gtk.Button(label='PLAY')
+      self.Transport_Rewind.connect("pressed", self.Transport_Button_Pressed_Event,
+                                    {'Widget':'Transport', 'Button':0})
+      self.Transport_Rewind.connect("released", self.Transport_Button_Released_Event,
+                                    {'Widget':'Transport', 'Button':0})
+
+      self.Transport_Play = gtk.ToggleButton(label='PLAY')
       self.Transport_Play.connect("focus-in-event", self.Focus_Event,
                                   {'Widget':1, 'Widget_Type':'Transport'})
-      self.Transport_Fast_Forward = gtk.Button(label='FF')
+      self.Transport_Play.connect("pressed", self.Transport_Button_Pressed_Event,
+                                    {'Widget':'Transport', 'Button':1})
+      self.Transport_Play.connect("released", self.Transport_Button_Released_Event,
+                                    {'Widget':'Transport', 'Button':1})
+
+      self.Transport_Fast_Forward = gtk.ToggleButton(label='FF')
       self.Transport_Fast_Forward.connect("focus-in-event", self.Focus_Event,
                                   {'Widget':2, 'Widget_Type':'Transport'})
-      self.Transport_Loop = gtk.Button(label='LOOP')
+      self.Transport_Fast_Forward.connect("pressed", self.Transport_Button_Pressed_Event,
+                                    {'Widget':'Transport', 'Button':2})
+      self.Transport_Fast_Forward.connect("released", self.Transport_Button_Released_Event,
+                                    {'Widget':'Transport', 'Button':2})
+
+      self.Transport_Loop = gtk.ToggleButton(label='LOOP')
       self.Transport_Loop.connect("focus-in-event", self.Focus_Event,
                                   {'Widget':3, 'Widget_Type':'Transport'})
-      self.Transport_Stop = gtk.Button(label='STOP')
+      self.Transport_Loop.connect("pressed", self.Transport_Button_Pressed_Event,
+                                    {'Widget':'Transport', 'Button':3})
+      self.Transport_Loop.connect("released", self.Transport_Button_Released_Event,
+                                    {'Widget':'Transport', 'Button':3})
+
+      self.Transport_Stop = gtk.ToggleButton(label='STOP')
       self.Transport_Stop.connect("focus-in-event", self.Focus_Event,
                                   {'Widget':4, 'Widget_Type':'Transport'})
-      self.Transport_Record = gtk.Button('REC')
+      self.Transport_Stop.connect("pressed", self.Transport_Button_Pressed_Event,
+                                    {'Widget':'Transport', 'Button':4})
+      self.Transport_Stop.connect("released", self.Transport_Button_Released_Event,
+                                    {'Widget':'Transport', 'Button':4})
+
+      self.Transport_Record = gtk.ToggleButton('REC')
       self.Transport_Record.connect("focus-in-event", self.Focus_Event,
                                   {'Widget':5, 'Widget_Type':'Transport'})
+      self.Transport_Record.connect("pressed", self.Transport_Button_Pressed_Event,
+                                    {'Widget':'Transport', 'Button':5})
+      self.Transport_Record.connect("released", self.Transport_Button_Released_Event,
+                                    {'Widget':'Transport', 'Button':5})
+
 
       self.Scene_H_Box = gtk.HBox()
       self.Scene_Button = gtk.Button('SCENE')
@@ -528,12 +701,20 @@ class Nano_Kontrol_Gui:
       self.Block_1_Knob.set_draw_value(draw_value=False)
       self.Block_1_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':0, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_1_Button_A = gtk.Button(label='A')
+      self.Block_1_Button_A = gtk.ToggleButton(label='A')
       self.Block_1_Button_A.connect("focus-in-event", self.Focus_Event,
                                     {'Block':0, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_1_Button_B = gtk.Button(label='B')
+      self.Block_1_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':0, 'Widget':'Button_A'})
+      self.Block_1_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':0, 'Widget':'Button_A'})
+      self.Block_1_Button_B = gtk.ToggleButton(label='B')
       self.Block_1_Button_B.connect("focus-in-event", self.Focus_Event,
                                     {'Block':0, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_1_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':0, 'Widget':'Button_B'})
+      self.Block_1_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':0, 'Widget':'Button_B'})
       self.Block_1_Table.attach(child=self.Block_1_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -586,12 +767,20 @@ class Nano_Kontrol_Gui:
       self.Block_2_Knob.set_draw_value(draw_value=False)
       self.Block_2_Knob.connect("focus-in-event", self.Focus_Event,
                                   {'Block':1, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_2_Button_A = gtk.Button(label='A')
+      self.Block_2_Button_A = gtk.ToggleButton(label='A')
       self.Block_2_Button_A.connect("focus-in-event", self.Focus_Event,
                                   {'Block':1, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_2_Button_B = gtk.Button(label='B')
+      self.Block_2_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':1, 'Widget':'Button_A'})
+      self.Block_2_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':1, 'Widget':'Button_A'})
+      self.Block_2_Button_B = gtk.ToggleButton(label='B')
       self.Block_2_Button_B.connect("focus-in-event", self.Focus_Event,
                                   {'Block':1, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_2_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':1, 'Widget':'Button_B'})
+      self.Block_2_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':1, 'Widget':'Button_B'})
       self.Block_2_Table.attach(child=self.Block_2_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -644,12 +833,20 @@ class Nano_Kontrol_Gui:
       self.Block_3_Knob.set_draw_value(draw_value=False)
       self.Block_3_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':2, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_3_Button_A = gtk.Button(label='A')
+      self.Block_3_Button_A = gtk.ToggleButton(label='A')
       self.Block_3_Button_A.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':2, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_3_Button_B = gtk.Button(label='B')
+                                  {'Block':2, 'Widget':'Button_A', 'Widget_Type':'Button'})
+      self.Block_3_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':2, 'Widget':'Button_A'})
+      self.Block_3_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':2, 'Widget':'Button_A'})
+      self.Block_3_Button_B = gtk.ToggleButton(label='B')
       self.Block_3_Button_B.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':2, 'Widget':'Button_B', 'Widget_Type':'Button'})
+                                  {'Block':2, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_3_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':2, 'Widget':'Button_B'})
+      self.Block_3_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':2, 'Widget':'Button_B'})
       self.Block_3_Table.attach(child=self.Block_3_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -702,12 +899,20 @@ class Nano_Kontrol_Gui:
       self.Block_4_Knob.set_draw_value(draw_value=False)
       self.Block_4_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':3, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_4_Button_A = gtk.Button(label='A')
+      self.Block_4_Button_A = gtk.ToggleButton(label='A')
       self.Block_4_Button_A.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':3, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_4_Button_B = gtk.Button(label='B')
+                                  {'Block':3, 'Widget':'Button_A', 'Widget_Type':'Button'})
+      self.Block_4_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':3, 'Widget':'Button_A'})
+      self.Block_4_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':3, 'Widget':'Button_A'})
+      self.Block_4_Button_B = gtk.ToggleButton(label='B')
       self.Block_4_Button_B.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':3, 'Widget':'Button_B', 'Widget_Type':'Button'})
+                                  {'Block':3, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_4_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':3, 'Widget':'Button_B'})
+      self.Block_4_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':3, 'Widget':'Button_B'})
       self.Block_4_Table.attach(child=self.Block_4_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -760,12 +965,20 @@ class Nano_Kontrol_Gui:
       self.Block_5_Knob.set_draw_value(draw_value=False)
       self.Block_5_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':4, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_5_Button_A = gtk.Button(label='A')
+      self.Block_5_Button_A = gtk.ToggleButton(label='A')
       self.Block_5_Button_A.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':4, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_5_Button_B = gtk.Button(label='B')
+                                  {'Block':4, 'Widget':'Button_A', 'Widget_Type':'Button'})
+      self.Block_5_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':4, 'Widget':'Button_A'})
+      self.Block_5_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':4, 'Widget':'Button_A'})
+      self.Block_5_Button_B = gtk.ToggleButton(label='B')
       self.Block_5_Button_B.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':4, 'Widget':'Button_B', 'Widget_Type':'Button'})
+                                  {'Block':4, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_5_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':4, 'Widget':'Button_B'})
+      self.Block_5_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':4, 'Widget':'Button_B'})
       self.Block_5_Table.attach(child=self.Block_5_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -818,12 +1031,20 @@ class Nano_Kontrol_Gui:
       self.Block_6_Knob.set_draw_value(draw_value=False)
       self.Block_6_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':5, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_6_Button_A = gtk.Button(label='A')
+      self.Block_6_Button_A = gtk.ToggleButton(label='A')
       self.Block_6_Button_A.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':5, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_6_Button_B = gtk.Button(label='B')
+                                  {'Block':5, 'Widget':'Button_A', 'Widget_Type':'Button'})
+      self.Block_6_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':5, 'Widget':'Button_A'})
+      self.Block_6_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':5, 'Widget':'Button_A'})
+      self.Block_6_Button_B = gtk.ToggleButton(label='B')
       self.Block_6_Button_B.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':5, 'Widget':'Button_B', 'Widget_Type':'Button'})
+                                  {'Block':5, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_6_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':5, 'Widget':'Button_B'})
+      self.Block_6_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':5, 'Widget':'Button_B'})
       self.Block_6_Table.attach(child=self.Block_6_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -876,12 +1097,20 @@ class Nano_Kontrol_Gui:
       self.Block_7_Knob.set_draw_value(draw_value=False)
       self.Block_7_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':6, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_7_Button_A = gtk.Button(label='A')
+      self.Block_7_Button_A = gtk.ToggleButton(label='A')
       self.Block_7_Button_A.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':6, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_7_Button_B = gtk.Button(label='B')
+                                  {'Block':6, 'Widget':'Button_A', 'Widget_Type':'Button'})
+      self.Block_7_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':6, 'Widget':'Button_A'})
+      self.Block_7_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':6, 'Widget':'Button_A'})
+      self.Block_7_Button_B = gtk.ToggleButton(label='B')
       self.Block_7_Button_B.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':6, 'Widget':'Button_B', 'Widget_Type':'Button'})
+                                  {'Block':6, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_7_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':6, 'Widget':'Button_B'})
+      self.Block_7_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':6, 'Widget':'Button_B'})
       self.Block_7_Table.attach(child=self.Block_7_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -934,12 +1163,20 @@ class Nano_Kontrol_Gui:
       self.Block_8_Knob.set_draw_value(draw_value=False)
       self.Block_8_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':7, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_8_Button_A = gtk.Button(label='A')
+      self.Block_8_Button_A = gtk.ToggleButton(label='A')
       self.Block_8_Button_A.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':7, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_8_Button_B = gtk.Button(label='B')
+                                  {'Block':7, 'Widget':'Button_A', 'Widget_Type':'Button'})
+      self.Block_8_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':7, 'Widget':'Button_A'})
+      self.Block_8_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':7, 'Widget':'Button_A'})
+      self.Block_8_Button_B = gtk.ToggleButton(label='B')
       self.Block_8_Button_B.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':7, 'Widget':'Button_B', 'Widget_Type':'Button'})
+                                  {'Block':7, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_8_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':7, 'Widget':'Button_B'})
+      self.Block_8_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':7, 'Widget':'Button_B'})
       self.Block_8_Table.attach(child=self.Block_8_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -992,12 +1229,20 @@ class Nano_Kontrol_Gui:
       self.Block_9_Knob.set_draw_value(draw_value=False)
       self.Block_9_Knob.connect("focus-in-event", self.Focus_Event,
                                 {'Block':8, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_9_Button_A = gtk.Button(label='A')
+      self.Block_9_Button_A = gtk.ToggleButton(label='A')
       self.Block_9_Button_A.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':8, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_9_Button_B = gtk.Button(label='B')
+                                  {'Block':8, 'Widget':'Button_A', 'Widget_Type':'Button'})
+      self.Block_9_Button_A.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':8, 'Widget':'Button_A'})
+      self.Block_9_Button_A.connect("released", self.Button_Released_Event,
+                                    {'Block':8, 'Widget':'Button_A'})
+      self.Block_9_Button_B = gtk.ToggleButton(label='B')
       self.Block_9_Button_B.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':8, 'Widget':'Button_B', 'Widget_Type':'Button'})
+                                  {'Block':8, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Block_9_Button_B.connect("pressed", self.Button_Pressed_Event,
+                                    {'Block':8, 'Widget':'Button_B'})
+      self.Block_9_Button_B.connect("released", self.Button_Released_Event,
+                                    {'Block':8, 'Widget':'Button_B'})
       self.Block_9_Table.attach(child=self.Block_9_Label,
                                 left_attach=0,
                                 right_attach=1,
@@ -1456,6 +1701,10 @@ class Nano_Kontrol_Gui:
       self.Button_Switch_Type.show()
 
 
+      self.Status_Bar = gtk.Statusbar()
+      self.Status_Bar.show()
+      self.Status_Bar_Context_ID = self.Status_Bar.get_context_id('Message')
+      self.Status_Bar.push(self.Status_Bar_Context_ID, 'Status Bar')
 
       self.H_Box_Level_1.pack_start(self.Transport_Table,
                                     expand=True, fill=True, padding=2)
@@ -1491,6 +1740,8 @@ class Nano_Kontrol_Gui:
                                 expand=False, fill=False, padding=3)
       self.V_Box_Top.pack_start(self.Transport_Control_Table,
                                 expand=False, fill=False, padding=3)
+      self.V_Box_Top.pack_start(self.Status_Bar,
+                                expand=False, fill=False, padding=2)
       self.V_Box_Top.show()
 
       self.Window.add(self.V_Box_Top)

@@ -1,7 +1,8 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 #   Nano Basket
-#   Copyright (C) 2010 Roy Vegard Ovesen <roy.v.ovesen@haugnett.no>
+#   Copyright (C) 2011 Roy Vegard Ovesen <roy.vegard.ovesen@gmail.com>
 
 
 #   This file is part of Nano Basket.

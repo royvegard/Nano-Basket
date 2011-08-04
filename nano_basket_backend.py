@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #   Nano Basket
-#   Copyright (C) 2010 Roy Vegard Ovesen <roy.v.ovesen@haugnett.no>
+#   Copyright (C) 2011 Roy Vegard Ovesen <roy.vegard.ovesen@gmail.com>
 
 
 #   This file is part of Nano Basket.
@@ -305,6 +305,7 @@ class Nano_Kontrol_Alsa_Midi_Comm:
          if ('ext' in Res.get_data().keys()):
             if (Res.get_data()['ext'][9] == Scene_Number):
                print('Scene change Success!')
+               return True
 
 
    def Scene_Upload_Request(self, Scene_List, Scene_Number=None):
@@ -441,6 +442,12 @@ class Nano_Kontrol_Alsa_Midi_Comm:
    def Send_Midi_CC(self, Channel=0, CC=0, Value=0):
       self.Controller.set_data({'control.channel':Channel, 'control.param':CC, 'control.value':Value})
       self.Seq.output_event(self.Controller)
+      self.Seq.drain_output()
+
+   def Send_Midi_MMC(self, Device_ID=0, Command=1):
+      MMC_Message = [0xf0, 0x7f, Device_ID, 0x06, Command, 0xf7]
+      self.Event.set_data({'ext': MMC_Message})
+      self.Seq.output_event(self.Event)
       self.Seq.drain_output()
 
 if (__name__ == '__main__'):
