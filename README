@@ -4,3 +4,11 @@ An effort to create configuration software for the Korg nanoSERIES
 MIDI controllers.
 
 Written in Python, using pygtk for GUI.
+
+
+Usage:
+Open a terminal in the folder these files are, then run:
+python ./nano_basket_gui.py
+
+Perhaps try if you have errors with the above command:
+python2 ./nano_basket_gui.py
