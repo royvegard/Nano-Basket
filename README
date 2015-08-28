@@ -3,8 +3,11 @@ Nano Basket
 An effort to create configuration software for the Korg nanoSERIES
 MIDI controllers.
 
-Written in Python, using pygtk for GUI.
+Written in Python, using pygtk for GUI and pyalsa for MIDI.
 
+Dependencies:
+pygtk  - http://www.pygtk.org
+pyalsa - http://www.alsa-project.org/main/index.php/Main_Page
 
 Usage:
 Open a terminal in the folder these files are, then run:
