@@ -72,7 +72,7 @@ class Nano_Kontrol_Block:
       self.SW_B_Release_Time = 0   # 0~127
       self.SW_B_Switch_Type = 0    # 0/1=Momentary/Toggle
 
-   def Set_Midi_Channel(Value):
+   def Set_Midi_Channel(self, Value):
       if (Value > -1 and Value < 128):
          self.Block_Midi_Channel = Value
 
