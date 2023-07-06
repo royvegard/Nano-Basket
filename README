@@ -6,7 +6,7 @@ MIDI controllers.
 Written in Python, using pygtk for GUI and pyalsa for MIDI.
 
 Dependencies:
-pygtk  - http://www.pygtk.org
+PyGObject - https://pygobject.readthedocs.io/en/latest/
 pyalsa - http://www.alsa-project.org/main/index.php/Main_Page
 
 Usage:
@@ -14,4 +14,4 @@ Open a terminal in the folder these files are, then run:
 python ./nano_basket_main.py
 
 Perhaps try if you have errors with the above command:
-python2 ./nano_basket_main.py
+python3 ./nano_basket_main.py
