@@ -37,7 +37,7 @@ class Nano_Kontrol_Common:
 
       # Scene name must contain exactly 12 bytes, padded with spaces.
       scene_name = (self.Scene_Name + '             ')[0:12]
-      scene_list = list(struct.unpack('12B', scene_name))
+      scene_list = list(struct.unpack('12B', scene_name.encode()))
       scene_list.append(self.Scene_Midi_Channel)
       return scene_list
 

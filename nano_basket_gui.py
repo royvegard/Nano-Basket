@@ -23,7 +23,7 @@ import copy
 import gi
 
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 class Nano_Kontrol_Gui:
 
@@ -98,40 +98,40 @@ class Nano_Kontrol_Gui:
 
       # Emphasize the current widget.
       if (widget):
-         Highlight_Color = Gtk.Gdk.Color(red=0, green=65535, blue=0, pixel=0)
-         Normal_Color = self.Scene_Button.get_style().bg[0]
+         Highlight_Color = Gdk.Color(red=0, green=65535, blue=0)
+         Normal_Color = self.Scene_Button.get_style().white
 
          for child in self.Transport_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_1_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_2_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_3_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_4_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_5_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_6_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_7_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_8_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          for child in self.Block_9_Table.get_children():
-            child.modify_bg(state=Gtk.STATE_NORMAL, color=Normal_Color)
+            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
-         widget.modify_bg(state=Gtk.STATE_NORMAL, color=Highlight_Color)
+         widget.modify_bg(state=Gtk.StateType.NORMAL, color=Highlight_Color)
 
 
    def Spin_Event(self, widget, data=None):
@@ -332,7 +332,7 @@ class Nano_Kontrol_Gui:
 
    def Fader_Event (self, widget, data=None):
       print('Fader Event')
-      print(widget.value)
+      print(widget.get_value())
       print('Block: ' + str(data['Block']))
       if (data['Type'] == 'Slider'):
          Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']].Slider_Assign_Type
@@ -355,7 +355,7 @@ class Nano_Kontrol_Gui:
       print('CC number: ' + str(CC_Number))
       print('Assign type: ' + str(Assign_Type))
       print('Midi Channel: ' + str(Midi_Channel))
-      Midi_Value = int((widget.value/127.0  * (Max_Value - Min_Value) + Min_Value) + 0.5)
+      Midi_Value = int((widget.get_value()/127.0  * (Max_Value - Min_Value) + Min_Value) + 0.5)
       print('Midi Value: ' + str(Midi_Value))
 
       if (Assign_Type == 1):
@@ -502,7 +502,7 @@ class Nano_Kontrol_Gui:
       self.Current_Widget = None
       self.Current_Widget_Type = None
 
-      self.Window = Gtk.Window(title="Nano")
+      self.Window = Gtk.ApplicationWindow(title="Nano")
       self.Window.connect("delete_event", self.delete_event, None)
 
       # # # # Menu # # # #
