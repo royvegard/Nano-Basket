@@ -25,6 +25,74 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 
+class Kontrol_Block:
+   def __init__(self, index, fader_event, focus_event, button_pressed_event, button_released_event):
+      self.index = index
+      self.Table = Gtk.Table(rows=4, columns=2)
+      self.Label = Gtk.Label()
+      self.Label.set_markup('<span foreground="black"> {0} </span>'.format(self.index + 1))
+      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", fader_event, {'Block':self.index, 'Type':'Slider'})
+      self.Slider = Gtk.VScale(adjustment=adj)
+      self.Slider.set_draw_value(draw_value=False)
+      self.Slider.set_inverted(setting=True)
+      self.Slider.connect("focus-in-event", focus_event,
+                          {'Block':self.index, 'Widget':'Slider', 'Widget_Type':'Slider'})
+      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
+      adj.connect("value_changed", fader_event, {'Block':self.index, 'Type':'Knob'})
+      self.Knob = Gtk.HScale(adjustment=adj)
+      self.Knob.set_draw_value(draw_value=False)
+      self.Knob.connect("focus-in-event", focus_event,
+                        {'Block':self.index, 'Widget':'Knob', 'Widget_Type':'Slider'})
+      self.Button_A = Gtk.ToggleButton(label='A')
+      self.Button_A.connect("focus-in-event", focus_event,
+                            {'Block':self.index, 'Widget':'Button_A', 'Widget_Type':'Button'})
+      self.Button_A.connect("pressed", button_pressed_event,
+                            {'Block':self.index, 'Widget':'Button_A'})
+      self.Button_A.connect("released", button_released_event,
+                            {'Block':self.index, 'Widget':'Button_A'})
+      self.Button_B = Gtk.ToggleButton(label='B')
+      self.Button_B.connect("focus-in-event", focus_event,
+                            {'Block':self.index, 'Widget':'Button_B', 'Widget_Type':'Button'})
+      self.Button_B.connect("pressed", button_pressed_event,
+                            {'Block':self.index, 'Widget':'Button_B'})
+      self.Button_B.connect("released", button_released_event,
+                            {'Block':self.index, 'Widget':'Button_B'})
+      self.Table.attach(child=self.Label,
+                                left_attach=0,
+                                right_attach=1,
+                                top_attach=0,
+                                bottom_attach=1,
+                                yoptions=Gtk.AttachOptions.FILL)
+      self.Label.show()
+      self.Table.attach(child=self.Slider,
+                                left_attach=1,
+                                right_attach=2,
+                                top_attach=1,
+                                bottom_attach=3)
+      self.Slider.show()
+      self.Table.attach(child=self.Knob,
+                                left_attach=1,
+                                right_attach=2,
+                                top_attach=0,
+                                bottom_attach=1,
+                                yoptions=Gtk.AttachOptions.FILL)
+      self.Knob.show()
+      self.Table.attach(child=self.Button_A,
+                                left_attach=0,
+                                right_attach=1,
+                                top_attach=1,
+                                bottom_attach=2)
+      self.Button_A.show()
+      self.Table.attach(child=self.Button_B,
+                                left_attach=0,
+                                right_attach=1,
+                                top_attach=2,
+                                bottom_attach=3)
+      self.Button_B.show()
+      self.Table.show()
+
+
 class Nano_Kontrol_Gui:
 
    def delete_event(self, widget, event, data=None):
@@ -104,32 +172,9 @@ class Nano_Kontrol_Gui:
          for child in self.Transport_Table.get_children():
             child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
-         for child in self.Block_1_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
-
-         for child in self.Block_2_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
-
-         for child in self.Block_3_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
-
-         for child in self.Block_4_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
-
-         for child in self.Block_5_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
-
-         for child in self.Block_6_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
-
-         for child in self.Block_7_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
-
-         for child in self.Block_8_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
-
-         for child in self.Block_9_Table.get_children():
-            child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
+         for block in self.Kontrol_Blocks:
+            for child in block.Table.get_children():
+               child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
 
          widget.modify_bg(state=Gtk.StateType.NORMAL, color=Highlight_Color)
 
@@ -684,647 +729,26 @@ class Nano_Kontrol_Gui:
                                   bottom_attach=3)
       self.Transport_Table.show()
 
-      # # # # Block 1 # # # #
-      #######################
-      self.Block_1_Table = Gtk.Table(rows=4, columns=2)
-      self.Block_1_Label = Gtk.Label()
-      self.Block_1_Label.set_markup('<span foreground="black">1</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':0, 'Type':'Slider'})
-      self.Block_1_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_1_Slider.set_draw_value(draw_value=False)
-      self.Block_1_Slider.set_inverted(setting=True)
-      self.Block_1_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':0, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':0, 'Type':'Knob'})
-      self.Block_1_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_1_Knob.set_draw_value(draw_value=False)
-      self.Block_1_Knob.connect("focus-in-event", self.Focus_Event,
-                                {'Block':0, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_1_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_1_Button_A.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':0, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_1_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':0, 'Widget':'Button_A'})
-      self.Block_1_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':0, 'Widget':'Button_A'})
-      self.Block_1_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_1_Button_B.connect("focus-in-event", self.Focus_Event,
-                                    {'Block':0, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_1_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':0, 'Widget':'Button_B'})
-      self.Block_1_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':0, 'Widget':'Button_B'})
-      self.Block_1_Table.attach(child=self.Block_1_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_1_Label.show()
-      self.Block_1_Table.attach(child=self.Block_1_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_1_Slider.show()
-      self.Block_1_Table.attach(child=self.Block_1_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_1_Knob.show()
-      self.Block_1_Table.attach(child=self.Block_1_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_1_Button_A.show()
-      self.Block_1_Table.attach(child=self.Block_1_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_1_Button_B.show()
-      self.Block_1_Table.show()
 
-      # # # # Block 2 # # # #
-      #######################
-      self.Block_2_Table = Gtk.Table(rows=3, columns=2)
-      self.Block_2_Label = Gtk.Label()
-      self.Block_2_Label.set_markup('<span foreground="black">2</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':1, 'Type':'Slider'})
-      self.Block_2_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_2_Slider.set_draw_value(draw_value=False)
-      self.Block_2_Slider.set_inverted(setting=True)
-      self.Block_2_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':1, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':1, 'Type':'Knob'})
-      self.Block_2_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_2_Knob.set_draw_value(draw_value=False)
-      self.Block_2_Knob.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':1, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_2_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_2_Button_A.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':1, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_2_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':1, 'Widget':'Button_A'})
-      self.Block_2_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':1, 'Widget':'Button_A'})
-      self.Block_2_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_2_Button_B.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':1, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_2_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':1, 'Widget':'Button_B'})
-      self.Block_2_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':1, 'Widget':'Button_B'})
-      self.Block_2_Table.attach(child=self.Block_2_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.SHRINK)
-      self.Block_2_Label.show()
-      self.Block_2_Table.attach(child=self.Block_2_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_2_Slider.show()
-      self.Block_2_Table.attach(child=self.Block_2_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_2_Knob.show()
-      self.Block_2_Table.attach(child=self.Block_2_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_2_Button_A.show()
-      self.Block_2_Table.attach(child=self.Block_2_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_2_Button_B.show()
-      self.Block_2_Table.show()
+      self.Kontrol_Blocks = []
+      for i in range(9):
+         block = Kontrol_Block(index=i,
+                               fader_event=self.Fader_Event,
+                               focus_event=self.Focus_Event,
+                               button_pressed_event=self.Button_Pressed_Event,
+                               button_released_event=self.Button_Released_Event)
+         self.Kontrol_Blocks.append(block)
 
-      # # # # Block 3 # # # #
-      #######################
-      self.Block_3_Table = Gtk.Table(rows=3, columns=2)
-      self.Block_3_Label = Gtk.Label()
-      self.Block_3_Label.set_markup('<span foreground="black">3</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':2, 'Type':'Slider'})
-      self.Block_3_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_3_Slider.set_draw_value(draw_value=False)
-      self.Block_3_Slider.set_inverted(setting=True)
-      self.Block_3_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':2, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':2, 'Type':'Knob'})
-      self.Block_3_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_3_Knob.set_draw_value(draw_value=False)
-      self.Block_3_Knob.connect("focus-in-event", self.Focus_Event,
-                                {'Block':2, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_3_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_3_Button_A.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':2, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_3_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':2, 'Widget':'Button_A'})
-      self.Block_3_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':2, 'Widget':'Button_A'})
-      self.Block_3_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_3_Button_B.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':2, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_3_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':2, 'Widget':'Button_B'})
-      self.Block_3_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':2, 'Widget':'Button_B'})
-      self.Block_3_Table.attach(child=self.Block_3_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_3_Label.show()
-      self.Block_3_Table.attach(child=self.Block_3_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_3_Slider.show()
-      self.Block_3_Table.attach(child=self.Block_3_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_3_Knob.show()
-      self.Block_3_Table.attach(child=self.Block_3_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_3_Button_A.show()
-      self.Block_3_Table.attach(child=self.Block_3_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_3_Button_B.show()
-      self.Block_3_Table.show()
-
-      # # # # Block 4 # # # #
-      #######################
-      self.Block_4_Table = Gtk.Table(rows=3, columns=2)
-      self.Block_4_Label = Gtk.Label()
-      self.Block_4_Label.set_markup('<span foreground="black">4</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':3, 'Type':'Slider'})
-      self.Block_4_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_4_Slider.set_draw_value(draw_value=False)
-      self.Block_4_Slider.set_inverted(setting=True)
-      self.Block_4_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':3, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':3, 'Type':'Knob'})
-      self.Block_4_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_4_Knob.set_draw_value(draw_value=False)
-      self.Block_4_Knob.connect("focus-in-event", self.Focus_Event,
-                                {'Block':3, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_4_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_4_Button_A.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':3, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_4_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':3, 'Widget':'Button_A'})
-      self.Block_4_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':3, 'Widget':'Button_A'})
-      self.Block_4_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_4_Button_B.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':3, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_4_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':3, 'Widget':'Button_B'})
-      self.Block_4_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':3, 'Widget':'Button_B'})
-      self.Block_4_Table.attach(child=self.Block_4_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_4_Label.show()
-      self.Block_4_Table.attach(child=self.Block_4_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_4_Slider.show()
-      self.Block_4_Table.attach(child=self.Block_4_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_4_Knob.show()
-      self.Block_4_Table.attach(child=self.Block_4_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_4_Button_A.show()
-      self.Block_4_Table.attach(child=self.Block_4_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_4_Button_B.show()
-      self.Block_4_Table.show()
-
-      # # # # Block 5 # # # #
-      #######################
-      self.Block_5_Table = Gtk.Table(rows=3, columns=2)
-      self.Block_5_Label = Gtk.Label()
-      self.Block_5_Label.set_markup('<span foreground="black">5</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':4, 'Type':'Slider'})
-      self.Block_5_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_5_Slider.set_draw_value(draw_value=False)
-      self.Block_5_Slider.set_inverted(setting=True)
-      self.Block_5_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':4, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':4, 'Type':'Knob'})
-      self.Block_5_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_5_Knob.set_draw_value(draw_value=False)
-      self.Block_5_Knob.connect("focus-in-event", self.Focus_Event,
-                                {'Block':4, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_5_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_5_Button_A.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':4, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_5_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':4, 'Widget':'Button_A'})
-      self.Block_5_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':4, 'Widget':'Button_A'})
-      self.Block_5_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_5_Button_B.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':4, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_5_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':4, 'Widget':'Button_B'})
-      self.Block_5_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':4, 'Widget':'Button_B'})
-      self.Block_5_Table.attach(child=self.Block_5_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_5_Label.show()
-      self.Block_5_Table.attach(child=self.Block_5_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_5_Slider.show()
-      self.Block_5_Table.attach(child=self.Block_5_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_5_Knob.show()
-      self.Block_5_Table.attach(child=self.Block_5_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_5_Button_A.show()
-      self.Block_5_Table.attach(child=self.Block_5_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_5_Button_B.show()
-      self.Block_5_Table.show()
-
-      # # # # Block 6 # # # #
-      #######################
-      self.Block_6_Table = Gtk.Table(rows=3, columns=2)
-      self.Block_6_Label = Gtk.Label()
-      self.Block_6_Label.set_markup('<span foreground="black">6</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':5, 'Type':'Slider'})
-      self.Block_6_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_6_Slider.set_draw_value(draw_value=False)
-      self.Block_6_Slider.set_inverted(setting=True)
-      self.Block_6_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':5, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':5, 'Type':'Knob'})
-      self.Block_6_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_6_Knob.set_draw_value(draw_value=False)
-      self.Block_6_Knob.connect("focus-in-event", self.Focus_Event,
-                                {'Block':5, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_6_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_6_Button_A.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':5, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_6_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':5, 'Widget':'Button_A'})
-      self.Block_6_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':5, 'Widget':'Button_A'})
-      self.Block_6_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_6_Button_B.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':5, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_6_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':5, 'Widget':'Button_B'})
-      self.Block_6_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':5, 'Widget':'Button_B'})
-      self.Block_6_Table.attach(child=self.Block_6_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_6_Label.show()
-      self.Block_6_Table.attach(child=self.Block_6_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_6_Slider.show()
-      self.Block_6_Table.attach(child=self.Block_6_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_6_Knob.show()
-      self.Block_6_Table.attach(child=self.Block_6_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_6_Button_A.show()
-      self.Block_6_Table.attach(child=self.Block_6_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_6_Button_B.show()
-      self.Block_6_Table.show()
-
-      # # # # Block 7 # # # #
-      #######################
-      self.Block_7_Table = Gtk.Table(rows=3, columns=2)
-      self.Block_7_Label = Gtk.Label()
-      self.Block_7_Label.set_markup('<span foreground="black">7</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':6, 'Type':'Slider'})
-      self.Block_7_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_7_Slider.set_draw_value(draw_value=False)
-      self.Block_7_Slider.set_inverted(setting=True)
-      self.Block_7_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':6, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':6, 'Type':'Knob'})
-      self.Block_7_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_7_Knob.set_draw_value(draw_value=False)
-      self.Block_7_Knob.connect("focus-in-event", self.Focus_Event,
-                                {'Block':6, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_7_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_7_Button_A.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':6, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_7_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':6, 'Widget':'Button_A'})
-      self.Block_7_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':6, 'Widget':'Button_A'})
-      self.Block_7_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_7_Button_B.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':6, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_7_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':6, 'Widget':'Button_B'})
-      self.Block_7_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':6, 'Widget':'Button_B'})
-      self.Block_7_Table.attach(child=self.Block_7_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_7_Label.show()
-      self.Block_7_Table.attach(child=self.Block_7_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_7_Slider.show()
-      self.Block_7_Table.attach(child=self.Block_7_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_7_Knob.show()
-      self.Block_7_Table.attach(child=self.Block_7_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_7_Button_A.show()
-      self.Block_7_Table.attach(child=self.Block_7_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_7_Button_B.show()
-      self.Block_7_Table.show()
-
-      # # # # Block 8 # # # #
-      #######################
-      self.Block_8_Table = Gtk.Table(rows=3, columns=2)
-      self.Block_8_Label = Gtk.Label()
-      self.Block_8_Label.set_markup('<span foreground="black">8</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':7, 'Type':'Slider'})
-      self.Block_8_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_8_Slider.set_draw_value(draw_value=False)
-      self.Block_8_Slider.set_inverted(setting=True)
-      self.Block_8_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':7, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':7, 'Type':'Knob'})
-      self.Block_8_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_8_Knob.set_draw_value(draw_value=False)
-      self.Block_8_Knob.connect("focus-in-event", self.Focus_Event,
-                                {'Block':7, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_8_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_8_Button_A.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':7, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_8_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':7, 'Widget':'Button_A'})
-      self.Block_8_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':7, 'Widget':'Button_A'})
-      self.Block_8_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_8_Button_B.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':7, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_8_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':7, 'Widget':'Button_B'})
-      self.Block_8_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':7, 'Widget':'Button_B'})
-      self.Block_8_Table.attach(child=self.Block_8_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_8_Label.show()
-      self.Block_8_Table.attach(child=self.Block_8_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_8_Slider.show()
-      self.Block_8_Table.attach(child=self.Block_8_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_8_Knob.show()
-      self.Block_8_Table.attach(child=self.Block_8_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_8_Button_A.show()
-      self.Block_8_Table.attach(child=self.Block_8_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_8_Button_B.show()
-      self.Block_8_Table.show()
-
-      # # # # Block 9 # # # #
-      #######################
-      self.Block_9_Table = Gtk.Table(rows=3, columns=2)
-      self.Block_9_Label = Gtk.Label()
-      self.Block_9_Label.set_markup('<span foreground="black">9</span>')
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':8, 'Type':'Slider'})
-      self.Block_9_Slider = Gtk.VScale(adjustment=adj)
-      self.Block_9_Slider.set_draw_value(draw_value=False)
-      self.Block_9_Slider.set_inverted(setting=True)
-      self.Block_9_Slider.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':8, 'Widget':'Slider', 'Widget_Type':'Slider'})
-      adj = Gtk.Adjustment(value=0, lower=0, upper=127, step_incr=1, page_incr=5, page_size=0)
-      adj.connect("value_changed", self.Fader_Event, {'Block':8, 'Type':'Knob'})
-      self.Block_9_Knob = Gtk.HScale(adjustment=adj)
-      self.Block_9_Knob.set_draw_value(draw_value=False)
-      self.Block_9_Knob.connect("focus-in-event", self.Focus_Event,
-                                {'Block':8, 'Widget':'Knob', 'Widget_Type':'Slider'})
-      self.Block_9_Button_A = Gtk.ToggleButton(label='A')
-      self.Block_9_Button_A.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':8, 'Widget':'Button_A', 'Widget_Type':'Button'})
-      self.Block_9_Button_A.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':8, 'Widget':'Button_A'})
-      self.Block_9_Button_A.connect("released", self.Button_Released_Event,
-                                    {'Block':8, 'Widget':'Button_A'})
-      self.Block_9_Button_B = Gtk.ToggleButton(label='B')
-      self.Block_9_Button_B.connect("focus-in-event", self.Focus_Event,
-                                  {'Block':8, 'Widget':'Button_B', 'Widget_Type':'Button'})
-      self.Block_9_Button_B.connect("pressed", self.Button_Pressed_Event,
-                                    {'Block':8, 'Widget':'Button_B'})
-      self.Block_9_Button_B.connect("released", self.Button_Released_Event,
-                                    {'Block':8, 'Widget':'Button_B'})
-      self.Block_9_Table.attach(child=self.Block_9_Label,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_9_Label.show()
-      self.Block_9_Table.attach(child=self.Block_9_Slider,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=1,
-                                bottom_attach=3)
-      self.Block_9_Slider.show()
-      self.Block_9_Table.attach(child=self.Block_9_Knob,
-                                left_attach=1,
-                                right_attach=2,
-                                top_attach=0,
-                                bottom_attach=1,
-                                yoptions=Gtk.AttachOptions.FILL)
-      self.Block_9_Knob.show()
-      self.Block_9_Table.attach(child=self.Block_9_Button_A,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=1,
-                                bottom_attach=2)
-      self.Block_9_Button_A.show()
-      self.Block_9_Table.attach(child=self.Block_9_Button_B,
-                                left_attach=0,
-                                right_attach=1,
-                                top_attach=2,
-                                bottom_attach=3)
-      self.Block_9_Button_B.show()
-      self.Block_9_Table.show()
-
-      self.Block_Labels = [self.Block_1_Label, self.Block_2_Label, self.Block_3_Label,
-                           self.Block_4_Label, self.Block_5_Label, self.Block_6_Label,
-                           self.Block_7_Label, self.Block_8_Label, self.Block_9_Label]
 
       # # # # Common controls # # # #
       ###############################
       self.Common_H_Box = Gtk.HBox()
       self.Transport_Midi_Channel_Label = Gtk.Label.new(str='Transport MIDI Channel:')
       self.Transport_Midi_Channel = Gtk.ComboBoxText()
-      self.Transport_Midi_Channel.append_text('1')
-      self.Transport_Midi_Channel.append_text('2')
-      self.Transport_Midi_Channel.append_text('3')
-      self.Transport_Midi_Channel.append_text('4')
-      self.Transport_Midi_Channel.append_text('5')
-      self.Transport_Midi_Channel.append_text('6')
-      self.Transport_Midi_Channel.append_text('7')
-      self.Transport_Midi_Channel.append_text('8')
-      self.Transport_Midi_Channel.append_text('9')
-      self.Transport_Midi_Channel.append_text('10')
-      self.Transport_Midi_Channel.append_text('11')
-      self.Transport_Midi_Channel.append_text('12')
-      self.Transport_Midi_Channel.append_text('13')
-      self.Transport_Midi_Channel.append_text('14')
-      self.Transport_Midi_Channel.append_text('15')
-      self.Transport_Midi_Channel.append_text('16')
-      self.Transport_Midi_Channel.append_text('Scene')
       self.Transport_Midi_Channel.connect("changed", self.Combo_Event,
                                           {'Widget':'Transport_Midi_Channel', 'Widget_Type':'Slider'})
       self.Block_Midi_Channel_Label = Gtk.Label(label='Block MIDI Channel:')
       self.Block_Midi_Channel = Gtk.ComboBoxText()
-      self.Block_Midi_Channel.append_text('1')
-      self.Block_Midi_Channel.append_text('2')
-      self.Block_Midi_Channel.append_text('3')
-      self.Block_Midi_Channel.append_text('4')
-      self.Block_Midi_Channel.append_text('5')
-      self.Block_Midi_Channel.append_text('6')
-      self.Block_Midi_Channel.append_text('7')
-      self.Block_Midi_Channel.append_text('8')
-      self.Block_Midi_Channel.append_text('9')
-      self.Block_Midi_Channel.append_text('10')
-      self.Block_Midi_Channel.append_text('11')
-      self.Block_Midi_Channel.append_text('12')
-      self.Block_Midi_Channel.append_text('13')
-      self.Block_Midi_Channel.append_text('14')
-      self.Block_Midi_Channel.append_text('15')
-      self.Block_Midi_Channel.append_text('16')
-      self.Block_Midi_Channel.append_text('Scene')
       self.Block_Midi_Channel.connect("changed", self.Combo_Event,
                                       {'Widget':'Block_Midi_Channel', 'Widget_Type':'Slider'})
       self.Scene_Name_Label = Gtk.Label(label='Scene Name:')
@@ -1333,22 +757,16 @@ class Nano_Kontrol_Gui:
                               {'Widget':'Scene_Name', 'Widget_Type':'Entry'})
       self.Scene_Midi_Channel_Label = Gtk.Label(label='Scene MIDI Channel:')
       self.Scene_Midi_Channel = Gtk.ComboBoxText()
-      self.Scene_Midi_Channel.append_text('1')
-      self.Scene_Midi_Channel.append_text('2')
-      self.Scene_Midi_Channel.append_text('3')
-      self.Scene_Midi_Channel.append_text('4')
-      self.Scene_Midi_Channel.append_text('5')
-      self.Scene_Midi_Channel.append_text('6')
-      self.Scene_Midi_Channel.append_text('7')
-      self.Scene_Midi_Channel.append_text('8')
-      self.Scene_Midi_Channel.append_text('9')
-      self.Scene_Midi_Channel.append_text('10')
-      self.Scene_Midi_Channel.append_text('11')
-      self.Scene_Midi_Channel.append_text('12')
-      self.Scene_Midi_Channel.append_text('13')
-      self.Scene_Midi_Channel.append_text('14')
-      self.Scene_Midi_Channel.append_text('15')
-      self.Scene_Midi_Channel.append_text('16')
+
+      for i in range(1, 17):
+         channel = '{}'.format(i)
+         self.Transport_Midi_Channel.append_text(channel)
+         self.Block_Midi_Channel.append_text(channel)
+         self.Scene_Midi_Channel.append_text(channel)
+
+      self.Transport_Midi_Channel.append_text('Scene')
+      self.Block_Midi_Channel.append_text('Scene')
+
       self.Scene_Midi_Channel.connect("changed", self.Combo_Event,
                                       {'Widget':'Scene_Midi_Channel', 'Widget_Type':'Slider'})
 
@@ -1709,24 +1127,8 @@ class Nano_Kontrol_Gui:
 
       self.H_Box_Level_1.pack_start(self.Transport_Table,
                                     expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_1_Table,
-                                    expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_2_Table,
-                                    expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_3_Table,
-                                    expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_4_Table,
-                                    expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_5_Table,
-                                    expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_6_Table,
-                                    expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_7_Table,
-                                    expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_8_Table,
-                                    expand=True, fill=True, padding=2)
-      self.H_Box_Level_1.pack_start(self.Block_9_Table,
-                                    expand=True, fill=True, padding=2)
+      for block in self.Kontrol_Blocks:
+         self.H_Box_Level_1.pack_start(block.Table, expand=True, fill=True, padding=2)
 
       self.H_Box_Level_1.show()
       self.H_Box_Level_1.set_size_request(width=-1, height=-1)
