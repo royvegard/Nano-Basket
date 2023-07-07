@@ -20,8 +20,8 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Nano Basket.  If not, see <http://www.gnu.org/licenses/>.
 
-from nano_basket_gui import *
-from nano_basket_backend import *
+from nano_basket_gui import Nano_Kontrol_Gui
+from nano_basket_backend import Nano_Kontrol_Scene, Nano_Kontrol_Alsa_Midi_Comm
 
 Scene_1 = Nano_Kontrol_Scene()
 Scene_2 = Nano_Kontrol_Scene()
