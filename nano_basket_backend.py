@@ -274,6 +274,7 @@ class Nano_Kontrol_Alsa_Midi_Comm:
              alsaseq.SEQ_PORT_CAP_SUBS_WRITE)
              
       self.Response_Wait = 0.2
+      self.Connect_Midi_Ports()
 
 
    def Scene_Change_Request(self, Scene_Number=0):
@@ -303,6 +304,7 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
+            print("Reply " + " ".join("{:02x}".format(x) for x in Res.get_data()['ext']))
             if (Res.get_data()['ext'][9] == Scene_Number):
                print('Scene change Success!')
                return True
@@ -344,9 +346,10 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
+            print("Reply " + " ".join("{:02x}".format(x) for x in Res.get_data()['ext']))
             if (Res.get_data()['ext'][9] == 0x23):
                print('Data load Success!')
-            elif(Res.get_data()['ext'][9] == 0x23):
+            elif(Res.get_data()['ext'][9] == 0x24):
                print('Data load Fail!')
 
 
@@ -376,6 +379,7 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       Data = []
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
+            print("Reply " + " ".join("{:02x}".format(x) for x in Res.get_data()['ext']))
             Data.extend(Res.get_data()['ext'])
       return Data
 
@@ -408,10 +412,11 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
+            print("Reply " + " ".join("{:02x}".format(x) for x in Res.get_data()['ext']))
             if (Res.get_data()['ext'][9] == 0x23):
-               print('Data load Success!')
-            elif(Res.get_data()['ext'][9] == 0x23):
-               print('Data load Fail!')
+               print('Data write Success!')
+            elif(Res.get_data()['ext'][9] == 0x24):
+               print('Data write Fail!')
 
 
    def Search_Device_Request(self):
@@ -429,6 +434,7 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       
       for Res in Response:
          if ('ext' in Res.get_data().keys()):
+            print("Reply " + " ".join("{:02x}".format(x) for x in Res.get_data()['ext']))
             if (Res.get_data()['ext'][0:4] == [0xf0,  0x42,  0x50,  0x01]):
                print('Got device')
                return Res.get_data()['ext']
@@ -449,6 +455,33 @@ class Nano_Kontrol_Alsa_Midi_Comm:
       self.Event.set_data({'ext': MMC_Message})
       self.Seq.output_event(self.Event)
       self.Seq.drain_output()
+
+   def Connect_Midi_Ports(self):
+      clients = self.Seq.connection_list()
+      client_name = ""
+      client_id = None
+      nano_kontrol_client = None
+      nano_kontrol_port = None
+      for client in clients:
+         client_name = client[0]
+         client_id = client[1]
+         if (client_name.find("nanoKONTROL") > -1):
+            nano_kontrol_client = client
+            print("Found client", client_name)
+            port_name = ""
+            port_id = None
+            for port in nano_kontrol_client[2]:
+               port_name = port[0]
+               port_id = port[1]
+               if (port_name.find("CTRL") > -1):
+                  print("Found port:", port_name)
+                  nano_kontrol_port = port
+                  break
+            break
+
+      self.Seq.connect_ports((nano_kontrol_client[1], nano_kontrol_port[1]), (self.Seq.client_id, self.Port))
+      self.Seq.connect_ports((self.Seq.client_id, self.Port), (nano_kontrol_client[1], nano_kontrol_port[1]))
+      print("Connected")
 
 if (__name__ == '__main__'):
    Nano_Scene = Nano_Kontrol_Scene()
