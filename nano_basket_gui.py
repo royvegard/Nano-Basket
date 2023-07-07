@@ -26,331 +26,331 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
 
 
-class Kontrol_Block:
+class KontrolBlock:
     def __init__(self, index, fader_event, focus_event, button_pressed_event, button_released_event):
         self.index = index
-        self.Table = Gtk.Table(rows=4, columns=2)
-        self.Label = Gtk.Label()
-        self.Label.set_markup(
+        self.table = Gtk.Table(rows=4, columns=2)
+        self.label = Gtk.Label()
+        self.label.set_markup(
             '<span foreground="black"> {0} </span>'.format(self.index + 1))
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
         adj.connect("value_changed", fader_event, {
                     'Block': self.index, 'Type': 'Slider'})
-        self.Slider = Gtk.VScale(adjustment=adj)
-        self.Slider.set_draw_value(draw_value=False)
-        self.Slider.set_inverted(setting=True)
-        self.Slider.connect("focus-in-event", focus_event,
+        self.slider = Gtk.VScale(adjustment=adj)
+        self.slider.set_draw_value(draw_value=False)
+        self.slider.set_inverted(setting=True)
+        self.slider.connect("focus-in-event", focus_event,
                             {'Block': self.index, 'Widget': 'Slider', 'Widget_Type': 'Slider'})
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
         adj.connect("value_changed", fader_event, {
                     'Block': self.index, 'Type': 'Knob'})
-        self.Knob = Gtk.HScale(adjustment=adj)
-        self.Knob.set_draw_value(draw_value=False)
-        self.Knob.connect("focus-in-event", focus_event,
+        self.knob = Gtk.HScale(adjustment=adj)
+        self.knob.set_draw_value(draw_value=False)
+        self.knob.connect("focus-in-event", focus_event,
                           {'Block': self.index, 'Widget': 'Knob', 'Widget_Type': 'Slider'})
-        self.Button_A = Gtk.ToggleButton(label='A')
-        self.Button_A.connect("focus-in-event", focus_event,
+        self.button_a = Gtk.ToggleButton(label='A')
+        self.button_a.connect("focus-in-event", focus_event,
                               {'Block': self.index, 'Widget': 'Button_A', 'Widget_Type': 'Button'})
-        self.Button_A.connect("pressed", button_pressed_event,
+        self.button_a.connect("pressed", button_pressed_event,
                               {'Block': self.index, 'Widget': 'Button_A'})
-        self.Button_A.connect("released", button_released_event,
+        self.button_a.connect("released", button_released_event,
                               {'Block': self.index, 'Widget': 'Button_A'})
-        self.Button_B = Gtk.ToggleButton(label='B')
-        self.Button_B.connect("focus-in-event", focus_event,
+        self.button_b = Gtk.ToggleButton(label='B')
+        self.button_b.connect("focus-in-event", focus_event,
                               {'Block': self.index, 'Widget': 'Button_B', 'Widget_Type': 'Button'})
-        self.Button_B.connect("pressed", button_pressed_event,
+        self.button_b.connect("pressed", button_pressed_event,
                               {'Block': self.index, 'Widget': 'Button_B'})
-        self.Button_B.connect("released", button_released_event,
+        self.button_b.connect("released", button_released_event,
                               {'Block': self.index, 'Widget': 'Button_B'})
-        self.Table.attach(child=self.Label,
+        self.table.attach(child=self.label,
                           left_attach=0,
                           right_attach=1,
                           top_attach=0,
                           bottom_attach=1,
                           yoptions=Gtk.AttachOptions.FILL)
-        self.Label.show()
-        self.Table.attach(child=self.Slider,
+        self.label.show()
+        self.table.attach(child=self.slider,
                           left_attach=1,
                           right_attach=2,
                           top_attach=1,
                           bottom_attach=3)
-        self.Slider.show()
-        self.Table.attach(child=self.Knob,
+        self.slider.show()
+        self.table.attach(child=self.knob,
                           left_attach=1,
                           right_attach=2,
                           top_attach=0,
                           bottom_attach=1,
                           yoptions=Gtk.AttachOptions.FILL)
-        self.Knob.show()
-        self.Table.attach(child=self.Button_A,
+        self.knob.show()
+        self.table.attach(child=self.button_a,
                           left_attach=0,
                           right_attach=1,
                           top_attach=1,
                           bottom_attach=2)
-        self.Button_A.show()
-        self.Table.attach(child=self.Button_B,
+        self.button_a.show()
+        self.table.attach(child=self.button_b,
                           left_attach=0,
                           right_attach=1,
                           top_attach=2,
                           bottom_attach=3)
-        self.Button_B.show()
-        self.Table.show()
+        self.button_b.show()
+        self.table.show()
 
 
-class Nano_Kontrol_Gui:
+class NanoKontrolGui:
     def delete_event(self, widget, event, data=None):
         Gtk.main_quit()
         return False
 
-    def Focus_Event(self, widget, event, data=None):
+    def focus_event(self, widget, event, data=None):
         """Triggered when the focus-in-event is sent, i.e. whenever we need to change
         the control widgets."""
 
         print('Focus_Event')
-        self.Current_Widget = data['Widget']
-        self.Current_Widget_Type = data['Widget_Type']
+        self.current_widget = data['Widget']
+        self.current_widget_type = data['Widget_Type']
         # widget.modify_text(state=Gtk.STATE_ACTIVE, color=Gtk.gdk.Color(red=0, green=65535, blue=0, pixel=0))
 
         # Show the appropriate control widgets.
-        if (self.Current_Widget_Type == 'Slider'):
-            self.Current_Block = data['Block']
-            self.Button_Control_Table.hide()
-            self.Transport_Control_Table.hide()
-            self.Slider_Knob_Control_Table.show()
-            self.Block_Midi_Channel.set_active(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Block_Midi_Channel)
-        elif (self.Current_Widget_Type == 'Button'):
-            self.Current_Block = data['Block']
-            self.Slider_Knob_Control_Table.hide()
-            self.Transport_Control_Table.hide()
-            self.Button_Control_Table.show()
-            self.Block_Midi_Channel.set_active(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Block_Midi_Channel)
-        elif (self.Current_Widget_Type == 'Transport'):
-            self.Slider_Knob_Control_Table.hide()
-            self.Button_Control_Table.hide()
-            self.Transport_Control_Table.show()
+        if (self.current_widget_type == 'Slider'):
+            self.current_block = data['Block']
+            self.button_control_table.hide()
+            self.transport_control_table.hide()
+            self.slider_knob_control_table.show()
+            self.block_midi_channel.set_active(
+                self.scene[self.current_scene].block[self.current_block].block_midi_channel)
+        elif (self.current_widget_type == 'Button'):
+            self.current_block = data['Block']
+            self.slider_knob_control_table.hide()
+            self.transport_control_table.hide()
+            self.button_control_table.show()
+            self.block_midi_channel.set_active(
+                self.scene[self.current_scene].block[self.current_block].block_midi_channel)
+        elif (self.current_widget_type == 'Transport'):
+            self.slider_knob_control_table.hide()
+            self.button_control_table.hide()
+            self.transport_control_table.show()
 
         # Read values from the backend datastore into the control widgets.
-        self.Scene_Midi_Channel.set_active(
-            self.Scene[self.Current_Scene].Common.Scene_Midi_Channel)
-        self.Scene_Name.set_text(
-            text=self.Scene[self.Current_Scene].Common.Scene_Name)
-        self.Transport_Midi_Channel.set_active(
-            self.Scene[self.Current_Scene].Transport_Midi_Channel)
+        self.scene_midi_channel.set_active(
+            self.scene[self.current_scene].common.scene_midi_channel)
+        self.scene_name.set_text(
+            text=self.scene[self.current_scene].common.scene_name)
+        self.transport_midi_channel.set_active(
+            self.scene[self.current_scene].transport_midi_channel)
 
-        if (self.Current_Widget == 'Slider'):
-            self.Slider_Assign_Type.set_active(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_Assign_Type)
-            self.Slider_CC.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_CC)
-            self.Slider_Min_Value.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_Min_Value)
-            self.Slider_Max_Value.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_Max_Value)
-        elif (self.Current_Widget == 'Knob'):
-            self.Slider_Assign_Type.set_active(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Knob_Assign_Type)
-            self.Slider_CC.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Knob_CC)
-            self.Slider_Min_Value.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Knob_Min_Value)
-            self.Slider_Max_Value.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Knob_Max_Value)
-        elif (self.Current_Widget == 'Button_A'):
-            self.Button_Assign_Type.set_active(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Assign_Type)
-            self.Button_CC.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_CC)
-            self.Button_Off_Value.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Off_Value)
-            self.Button_On_Value.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_On_Value)
-            self.Button_Attack_Time.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Attack_Time)
-            self.Button_Release_Time.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Release_Time)
-            self.Button_Switch_Type.set_active(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Switch_Type)
-        elif (self.Current_Widget == 'Button_B'):
-            self.Button_Assign_Type.set_active(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Assign_Type)
-            self.Button_CC.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_CC)
-            self.Button_Off_Value.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Off_Value)
-            self.Button_On_Value.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_On_Value)
-            self.Button_Attack_Time.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Attack_Time)
-            self.Button_Release_Time.set_value(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Release_Time)
-            self.Button_Switch_Type.set_active(
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Switch_Type)
-        elif (self.Current_Widget in range(6)):
-            self.Transport_Assign_Type.set_active(
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].Assign_Type)
-            self.Transport_CC.set_value(
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].CC)
-            self.Transport_MMC_Command.set_active(
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].MMC_Command)
-            self.Transport_MMC_Dev_ID.set_value(
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].MMC_Device_ID)
-            self.Transport_Switch_Type.set_active(
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].Switch_Type)
+        if (self.current_widget == 'Slider'):
+            self.slider_assign_type.set_active(
+                self.scene[self.current_scene].block[self.current_block].slider_assign_type)
+            self.slider_cc.set_value(
+                self.scene[self.current_scene].block[self.current_block].slider_cc)
+            self.slider_min_value.set_value(
+                self.scene[self.current_scene].block[self.current_block].slider_min_value)
+            self.slider_max_value.set_value(
+                self.scene[self.current_scene].block[self.current_block].slider_max_value)
+        elif (self.current_widget == 'Knob'):
+            self.slider_assign_type.set_active(
+                self.scene[self.current_scene].block[self.current_block].knob_assign_type)
+            self.slider_cc.set_value(
+                self.scene[self.current_scene].block[self.current_block].knob_cc)
+            self.slider_min_value.set_value(
+                self.scene[self.current_scene].block[self.current_block].knob_min_value)
+            self.slider_max_value.set_value(
+                self.scene[self.current_scene].block[self.current_block].knob_max_value)
+        elif (self.current_widget == 'Button_A'):
+            self.button_assign_type.set_active(
+                self.scene[self.current_scene].block[self.current_block].sw_a_assign_type)
+            self.button_cc.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_a_cc)
+            self.button_off_value.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_a_off_value)
+            self.button_on_value.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_a_on_value)
+            self.button_attack_time.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_a_attack_time)
+            self.button_release_time.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_a_release_time)
+            self.button_switch_type.set_active(
+                self.scene[self.current_scene].block[self.current_block].sw_a_switch_type)
+        elif (self.current_widget == 'Button_B'):
+            self.button_assign_type.set_active(
+                self.scene[self.current_scene].block[self.current_block].sw_b_assign_type)
+            self.button_cc.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_b_cc)
+            self.button_off_value.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_b_off_value)
+            self.button_on_value.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_b_on_value)
+            self.button_attack_time.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_b_attack_time)
+            self.button_release_time.set_value(
+                self.scene[self.current_scene].block[self.current_block].sw_b_release_time)
+            self.button_switch_type.set_active(
+                self.scene[self.current_scene].block[self.current_block].sw_b_switch_type)
+        elif (self.current_widget in range(6)):
+            self.transport_assign_type.set_active(
+                self.scene[self.current_scene].transport_button[self.current_widget].assign_type)
+            self.transport_cc.set_value(
+                self.scene[self.current_scene].transport_button[self.current_widget].cc)
+            self.transport_mmc_command.set_active(
+                self.scene[self.current_scene].transport_button[self.current_widget].mmc_command)
+            self.transport_mmc_dev_id.set_value(
+                self.scene[self.current_scene].transport_button[self.current_widget].mmc_device_id)
+            self.transport_switch_type.set_active(
+                self.scene[self.current_scene].transport_button[self.current_widget].switch_type)
 
         # Emphasize the current widget.
         if (widget):
-            Highlight_Color = Gdk.Color(red=0, green=65535, blue=0)
-            Normal_Color = self.Scene_Button.get_style().white
+            highlight_color = Gdk.Color(red=0, green=65535, blue=0)
+            normal_color = self.scene_button.get_style().white
 
-            for child in self.Transport_Table.get_children():
-                child.modify_bg(state=Gtk.StateType.NORMAL, color=Normal_Color)
+            for child in self.transport_table.get_children():
+                child.modify_bg(state=Gtk.StateType.NORMAL, color=normal_color)
 
-            for block in self.Kontrol_Blocks:
-                for child in block.Table.get_children():
+            for block in self.kontrol_blocks:
+                for child in block.table.get_children():
                     child.modify_bg(state=Gtk.StateType.NORMAL,
-                                    color=Normal_Color)
+                                    color=normal_color)
 
-            widget.modify_bg(state=Gtk.StateType.NORMAL, color=Highlight_Color)
+            widget.modify_bg(state=Gtk.StateType.NORMAL, color=highlight_color)
 
-    def Spin_Event(self, widget, data=None):
+    def spin_event(self, widget, data=None):
         """Triggered when a spinbox widget's value is changed. The changed value
         is stored in the backend datastore."""
 
         print('Spin_Event')
-        Value = widget.get_value_as_int()
-        Input_Widget = data['Widget']
+        value = widget.get_value_as_int()
+        input_widget = data['Widget']
 
         # Read value from widget, and store the value in the backend datastore.
-        if (self.Current_Widget == 'Slider'):
-            if (Input_Widget == 'CC'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_CC = Value
-            elif (Input_Widget == 'Min_Value'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_Min_Value = Value
-            elif (Input_Widget == 'Max_Value'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_Max_Value = Value
+        if (self.current_widget == 'Slider'):
+            if (input_widget == 'CC'):
+                self.scene[self.current_scene].block[self.current_block].slider_cc = value
+            elif (input_widget == 'Min_Value'):
+                self.scene[self.current_scene].block[self.current_block].slider_min_value = value
+            elif (input_widget == 'Max_Value'):
+                self.scene[self.current_scene].block[self.current_block].slider_max_value = value
 
-        elif (self.Current_Widget == 'Knob'):
-            if (Input_Widget == 'CC'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Knob_CC = Value
-            elif (Input_Widget == 'Min_Value'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Knob_Min_Value = Value
-            elif (Input_Widget == 'Max_Value'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Knob_Max_Value = Value
+        elif (self.current_widget == 'Knob'):
+            if (input_widget == 'CC'):
+                self.scene[self.current_scene].block[self.current_block].knob_cc = value
+            elif (input_widget == 'Min_Value'):
+                self.scene[self.current_scene].block[self.current_block].knob_min_value = value
+            elif (input_widget == 'Max_Value'):
+                self.scene[self.current_scene].block[self.current_block].knob_max_value = value
 
-        elif (self.Current_Widget == 'Button_A'):
-            if (Input_Widget == 'CC'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_CC = Value
-            elif (Input_Widget == 'Off_Value'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Off_Value = Value
-            elif (Input_Widget == 'On_Value'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_On_Value = Value
-            elif (Input_Widget == 'Attack_Time'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Attack_Time = Value
-            elif (Input_Widget == 'Release_Time'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Release_Time = Value
+        elif (self.current_widget == 'Button_A'):
+            if (input_widget == 'CC'):
+                self.scene[self.current_scene].block[self.current_block].sw_a_cc = value
+            elif (input_widget == 'Off_Value'):
+                self.scene[self.current_scene].block[self.current_block].sw_a_off_value = value
+            elif (input_widget == 'On_Value'):
+                self.scene[self.current_scene].block[self.current_block].sw_a_on_value = value
+            elif (input_widget == 'Attack_Time'):
+                self.scene[self.current_scene].block[self.current_block].sw_a_attack_time = value
+            elif (input_widget == 'Release_Time'):
+                self.scene[self.current_scene].block[self.current_block].sw_a_release_time = value
 
-        elif (self.Current_Widget == 'Button_B'):
-            if (Input_Widget == 'CC'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_CC = Value
-            elif (Input_Widget == 'Off_Value'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Off_Value = Value
-            elif (Input_Widget == 'On_Value'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_On_Value = Value
-            elif (Input_Widget == 'Attack_Time'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Attack_Time = Value
-            elif (Input_Widget == 'Release_Time'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Release_Time = Value
+        elif (self.current_widget == 'Button_B'):
+            if (input_widget == 'CC'):
+                self.scene[self.current_scene].block[self.current_block].sw_b_cc = value
+            elif (input_widget == 'Off_Value'):
+                self.scene[self.current_scene].block[self.current_block].sw_b_off_value = value
+            elif (input_widget == 'On_Value'):
+                self.scene[self.current_scene].block[self.current_block].sw_b_on_value = value
+            elif (input_widget == 'Attack_Time'):
+                self.scene[self.current_scene].block[self.current_block].sw_b_attack_time = value
+            elif (input_widget == 'Release_Time'):
+                self.scene[self.current_scene].block[self.current_block].sw_b_release_time = value
 
-        elif (self.Current_Widget in range(6)):
-            if (Input_Widget == 'CC'):
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].CC = Value
-            elif (Input_Widget == 'MMC_Dev_ID'):
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].MMC_Device_ID = Value
+        elif (self.current_widget in range(6)):
+            if (input_widget == 'CC'):
+                self.scene[self.current_scene].transport_button[self.current_widget].cc = value
+            elif (input_widget == 'MMC_Dev_ID'):
+                self.scene[self.current_scene].transport_button[self.current_widget].mmc_device_id = value
 
-    def Combo_Event(self, widget, data=None):
+    def combo_event(self, widget, data=None):
         """Triggered when combobox widget's value (index) is changed.
         The changed value (index) is stored in the backend datastore."""
 
         print('Combo_Event')
-        Value = widget.get_active()
-        Input_Widget = data['Widget']
+        value = widget.get_active()
+        input_widget = data['Widget']
 
         # Read value from widget, and store the value in the backend datastore.
-        if (Input_Widget == 'Scene_Midi_Channel'):
-            self.Scene[self.Current_Scene].Common.Scene_Midi_Channel = Value
+        if (input_widget == 'Scene_Midi_Channel'):
+            self.scene[self.current_scene].common.scene_midi_channel = value
 
-        elif (Input_Widget == 'Block_Midi_Channel'):
-            self.Scene[self.Current_Scene].Block[self.Current_Block].Block_Midi_Channel = Value
+        elif (input_widget == 'Block_Midi_Channel'):
+            self.scene[self.current_scene].block[self.current_block].block_midi_channel = value
 
-        elif (Input_Widget == 'Transport_Midi_Channel'):
-            self.Scene[self.Current_Scene].Transport_Midi_Channel = Value
+        elif (input_widget == 'Transport_Midi_Channel'):
+            self.scene[self.current_scene].transport_midi_channel = value
 
-        elif (self.Current_Widget == 'Slider'):
-            if (Input_Widget == 'Assign_Type'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Slider_Assign_Type = Value
+        elif (self.current_widget == 'Slider'):
+            if (input_widget == 'Assign_Type'):
+                self.scene[self.current_scene].block[self.current_block].slider_assign_type = value
 
-        elif (self.Current_Widget == 'Knob'):
-            if (Input_Widget == 'Assign_Type'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].Knob_Assign_Type = Value
+        elif (self.current_widget == 'Knob'):
+            if (input_widget == 'Assign_Type'):
+                self.scene[self.current_scene].block[self.current_block].knob_assign_type = value
 
-        elif (self.Current_Widget == 'Button_A'):
-            if (Input_Widget == 'Assign_Type'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Assign_Type = Value
-            elif (Input_Widget == 'Switch_Type'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_A_Switch_Type = Value
+        elif (self.current_widget == 'Button_A'):
+            if (input_widget == 'Assign_Type'):
+                self.scene[self.current_scene].block[self.current_block].sw_a_assign_type = value
+            elif (input_widget == 'Switch_Type'):
+                self.scene[self.current_scene].block[self.current_block].sw_a_switch_type = value
 
-        elif (self.Current_Widget == 'Button_B'):
-            if (Input_Widget == 'Assign_Type'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Assign_Type = Value
-            elif (Input_Widget == 'Switch_Type'):
-                self.Scene[self.Current_Scene].Block[self.Current_Block].SW_B_Switch_Type = Value
+        elif (self.current_widget == 'Button_B'):
+            if (input_widget == 'Assign_Type'):
+                self.scene[self.current_scene].block[self.current_block].sw_b_assign_type = value
+            elif (input_widget == 'Switch_Type'):
+                self.scene[self.current_scene].block[self.current_block].sw_b_switch_type = value
 
-        elif (self.Current_Widget in range(6)):
-            if (Input_Widget == 'Assign_Type'):
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].Assign_Type = Value
-            elif (Input_Widget == 'MMC_Command'):
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].MMC_Command = Value
-            elif (Input_Widget == 'Switch_Type'):
-                self.Scene[self.Current_Scene].Transport_Button[self.Current_Widget].Switch_Type = Value
+        elif (self.current_widget in range(6)):
+            if (input_widget == 'Assign_Type'):
+                self.scene[self.current_scene].transport_button[self.current_widget].assign_type = value
+            elif (input_widget == 'MMC_Command'):
+                self.scene[self.current_scene].transport_button[self.current_widget].mmc_command = value
+            elif (input_widget == 'Switch_Type'):
+                self.scene[self.current_scene].transport_button[self.current_widget].switch_type = value
 
         return False
 
-    def Entry_Event(self, widget, event, data=None):
+    def entry_event(self, widget, event, data=None):
         print('Entry_Event')
-        Value = widget.get_text()
-        Input_Widget = data['Widget']
+        value = widget.get_text()
+        input_widget = data['Widget']
 
         # Read value from widget, and store the value in the backend datastore.
-        if (Input_Widget == 'Scene_Name'):
-            self.Scene[self.Current_Scene].Common.Scene_Name = Value
+        if (input_widget == 'Scene_Name'):
+            self.scene[self.current_scene].common.scene_name = value
 
         return False
 
-    def Scene_Cycle_Event(self, widget, data=None):
+    def scene_cycle_event(self, widget, data=None):
         """Triggered when the Scene button is pressed. The current scene is cycled
         through the scenes."""
 
         print('Scene_Cycle_Event')
-        Radio_Buttons = self.Scene_1_Light.get_group()
+        radio_buttons = self.scene_1_light.get_group()
         # Sort the list so that they are in the correct order.
-        Radio_Buttons.sort(key=Gtk.RadioButton.get_name)
+        radio_buttons.sort(key=Gtk.RadioButton.get_name)
 
-        for i in range(len(Radio_Buttons)):
-            if (i == len(Radio_Buttons)-1):
+        for i in range(len(radio_buttons)):
+            if (i == len(radio_buttons)-1):
                 # If we come this far, we need to wrap around to the first.
-                Radio_Buttons[0].set_active(is_active=True)
+                radio_buttons[0].set_active(is_active=True)
                 break
-            elif Radio_Buttons[i].get_active():
-                Radio_Buttons[i+1].set_active(is_active=True)
+            elif radio_buttons[i].get_active():
+                radio_buttons[i+1].set_active(is_active=True)
                 break
 
         return False
 
-    def Scene_Change_Event(self, widget, data=None):
+    def scene_change_event(self, widget, data=None):
         """Triggered when any of the scene radio buttons are clicked.
         Sets the current scene to the clicked radio button."""
 
@@ -359,900 +359,901 @@ class Nano_Kontrol_Gui:
         # PRIORITY: LOW
 
         print('Scene_Change_Event')
-        Radio_Buttons = self.Scene_1_Light.get_group()
-        Radio_Buttons.sort(key=Gtk.RadioButton.get_name)
+        radio_buttons = self.scene_1_light.get_group()
+        radio_buttons.sort(key=Gtk.RadioButton.get_name)
 
-        for i in range(len(Radio_Buttons)):
-            if (Radio_Buttons[i].get_active()):
-                self.Current_Scene = i
+        for i in range(len(radio_buttons)):
+            if (radio_buttons[i].get_active()):
+                self.current_scene = i
 
         # Fire off the Focus_Event so that the control widgets
         # get populated with values from the new scene.
-        self.Focus_Event(widget=None, event=None,
-                         data={'Block': self.Current_Block, 'Widget': self.Current_Widget, 'Widget_Type': self.Current_Widget_Type})
+        self.focus_event(widget=None, event=None,
+                         data={'Block': self.current_block, 'Widget': self.current_widget, 'Widget_Type': self.current_widget_type})
         return False
 
-    def Upload_Scene_Event(self, widget, data=None):
+    def upload_scene_event(self, widget, data=None):
         try:
-            self.Midi_Comm.Scene_Change_Request(
-                Scene_Number=self.Current_Scene)
-            Scene_List = self.Scene[self.Current_Scene].Get_List()
-            self.Midi_Comm.Scene_Upload_Request(
-                Scene_List=Scene_List, Scene_Number=self.Current_Scene)
-            self.Midi_Comm.Scene_Write_Request(Scene_Number=self.Current_Scene)
+            self.midi_comm.scene_change_request(
+                Scene_Number=self.current_scene)
+            scene_list = self.scene[self.current_scene].get_list()
+            self.midi_comm.scene_upload_request(
+                Scene_List=scene_list, Scene_Number=self.current_scene)
+            self.midi_comm.scene_write_request(Scene_Number=self.current_scene)
         except:
-            self.Status_Bar.push(
-                context_id=self.Status_Bar_Context_ID, text='Error:Upload Scene failed')
+            self.status_bar.push(
+                context_id=self.status_bar_context_id, text='Error:Upload Scene failed')
             return False
 
-        self.Status_Bar.push(
-            context_id=self.Status_Bar_Context_ID, text='Uploaded Scene to device')
+        self.status_bar.push(
+            context_id=self.status_bar_context_id, text='Uploaded Scene to device')
         return False
 
-    def Download_Scene_Event(self, widget, data=None):
+    def download_scene_event(self, widget, data=None):
         try:
-            self.Midi_Comm.Scene_Change_Request(
-                Scene_Number=self.Current_Scene)
-            Scene_Data = self.Midi_Comm.Scene_Dump_Request()
-            self.Scene[self.Current_Scene].Parse_Data(Scene_Data)
+            self.midi_comm.scene_change_request(
+                Scene_Number=self.current_scene)
+            scene_data = self.midi_comm.scene_dump_request()
+            self.scene[self.current_scene].parse_data(scene_data)
         except:
-            self.Status_Bar.push(
-                context_id=self.Status_Bar_Context_ID, text='Error: Download Scene failed')
+            self.status_bar.push(
+                context_id=self.status_bar_context_id, text='Error: Download Scene failed')
             return False
         # Fire off the Focus_Event so that the control widgets
         # get populated with values from the new scene.
-        self.Focus_Event(widget=None, event=None,
-                         data={'Block': self.Current_Block, 'Widget': self.Current_Widget, 'Widget_Type': self.Current_Widget_Type})
-        self.Status_Bar.push(
-            context_id=self.Status_Bar_Context_ID, text='Downloaded Scene from device')
+        self.focus_event(widget=None, event=None,
+                         data={'Block': self.current_block, 'Widget': self.current_widget, 'Widget_Type': self.current_widget_type})
+        self.status_bar.push(
+            context_id=self.status_bar_context_id, text='Downloaded Scene from device')
         return False
 
-    def Copy_Scene_Event(self, widget, data=None):
-        self.Scene[-1] = copy.deepcopy(self.Scene[self.Current_Scene])
+    def copy_scene_event(self, widget, data=None):
+        self.scene[-1] = copy.deepcopy(self.scene[self.current_scene])
         return False
 
-    def Paste_Scene_Event(self, widget, data=None):
-        self.Scene[self.Current_Scene] = copy.deepcopy(self.Scene[-1])
+    def paste_scene_event(self, widget, data=None):
+        self.scene[self.current_scene] = copy.deepcopy(self.scene[-1])
         # Fire off the Focus_Event so that the control widgets
         # get populated with values from the new scene.
-        self.Focus_Event(widget=None, event=None,
-                         data={'Block': self.Current_Block, 'Widget': self.Current_Widget, 'Widget_Type': self.Current_Widget_Type})
+        self.focus_event(widget=None, event=None,
+                         data={'Block': self.current_block, 'Widget': self.current_widget, 'Widget_Type': self.current_widget_type})
         return False
 
-    def Fader_Event(self, widget, data=None):
+    def fader_event(self, widget, data=None):
         print('Fader Event')
         print(widget.get_value())
         print('Block: ' + str(data['Block']))
         if (data['Type'] == 'Slider'):
-            Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].Slider_Assign_Type
-            CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].Slider_CC
-            Min_Value = self.Scene[self.Current_Scene].Block[data['Block']
-                                                             ].Slider_Min_Value
-            Max_Value = self.Scene[self.Current_Scene].Block[data['Block']
-                                                             ].Slider_Max_Value
+            assign_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].slider_assign_type
+            cc_number = self.scene[self.current_scene].block[data['Block']].slider_cc
+            min_value = self.scene[self.current_scene].block[data['Block']
+                                                             ].slider_min_value
+            max_value = self.scene[self.current_scene].block[data['Block']
+                                                             ].slider_max_value
         elif (data['Type'] == 'Knob'):
-            Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].Knob_Assign_Type
-            CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].Knob_CC
-            Min_Value = self.Scene[self.Current_Scene].Block[data['Block']
-                                                             ].Knob_Min_Value
-            Max_Value = self.Scene[self.Current_Scene].Block[data['Block']
-                                                             ].Knob_Max_Value
+            assign_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].knob_assign_type
+            cc_number = self.scene[self.current_scene].block[data['Block']].knob_cc
+            min_value = self.scene[self.current_scene].block[data['Block']
+                                                             ].knob_min_value
+            max_value = self.scene[self.current_scene].block[data['Block']
+                                                             ].knob_max_value
 
-        Block_Midi_Channel = self.Scene[self.Current_Scene].Block[data['Block']
-                                                                  ].Block_Midi_Channel
-        Midi_Channel = Block_Midi_Channel
-        if (Midi_Channel == 16):
-            Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+        block_midi_channel = self.scene[self.current_scene].block[data['Block']
+                                                                  ].block_midi_channel
+        midi_channel = block_midi_channel
+        if (midi_channel == 16):
+            midi_channel = self.scene[self.current_scene].common.scene_midi_channel
 
-        print('Max value: ' + str(Max_Value))
-        print('Min value: ' + str(Min_Value))
-        print('CC number: ' + str(CC_Number))
-        print('Assign type: ' + str(Assign_Type))
-        print('Midi Channel: ' + str(Midi_Channel))
-        Midi_Value = int((widget.get_value()/127.0 *
-                         (Max_Value - Min_Value) + Min_Value) + 0.5)
-        print('Midi Value: ' + str(Midi_Value))
+        print('Max value: ' + str(max_value))
+        print('Min value: ' + str(min_value))
+        print('CC number: ' + str(cc_number))
+        print('Assign type: ' + str(assign_type))
+        print('Midi Channel: ' + str(midi_channel))
+        midi_value = int((widget.get_value()/127.0 *
+                         (max_value - min_value) + min_value) + 0.5)
+        print('Midi Value: ' + str(midi_value))
 
-        if (Assign_Type == 1):
-            self.Midi_Comm.Send_Midi_CC(
-                Channel=Midi_Channel, CC=CC_Number, Value=Midi_Value)
+        if (assign_type == 1):
+            self.midi_comm.send_midi_cc(
+                channel=midi_channel, cc=cc_number, value=midi_value)
 
         return False
 
-    def Button_Pressed_Event(self, widget, data=None):
+    def button_pressed_event(self, widget, data=None):
         print('Button Pressed Event')
         if (data['Widget'] == 'Button_A'):
-            Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].SW_A_Assign_Type
-            CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_CC
-            Off_Value = self.Scene[self.Current_Scene].Block[data['Block']
-                                                             ].SW_A_Off_Value
-            On_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_On_Value
-            Switch_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].SW_A_Switch_Type
+            assign_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].sw_a_assign_type
+            cc_number = self.scene[self.current_scene].block[data['Block']].sw_a_cc
+            off_value = self.scene[self.current_scene].block[data['Block']
+                                                             ].sw_a_off_value
+            on_value = self.scene[self.current_scene].block[data['Block']].sw_a_on_value
+            switch_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].sw_a_switch_type
         elif (data['Widget'] == 'Button_B'):
-            Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].SW_B_Assign_Type
-            CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_CC
-            Off_Value = self.Scene[self.Current_Scene].Block[data['Block']
-                                                             ].SW_B_Off_Value
-            On_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_On_Value
-            Switch_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].SW_B_Switch_Type
+            assign_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].sw_b_assign_type
+            cc_number = self.scene[self.current_scene].block[data['Block']].sw_b_cc
+            off_value = self.scene[self.current_scene].block[data['Block']
+                                                             ].sw_b_off_value
+            on_value = self.scene[self.current_scene].block[data['Block']].sw_b_on_value
+            switch_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].sw_b_switch_type
 
-        Block_Midi_Channel = self.Scene[self.Current_Scene].Block[data['Block']
-                                                                  ].Block_Midi_Channel
-        Midi_Channel = Block_Midi_Channel
-        if (Midi_Channel == 16):
-            Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+        block_midi_channel = self.scene[self.current_scene].block[data['Block']
+                                                                  ].block_midi_channel
+        midi_channel = block_midi_channel
+        if (midi_channel == 16):
+            midi_channel = self.scene[self.current_scene].common.scene_midi_channel
 
-        print('On value: ' + str(On_Value))
-        print('Off value: ' + str(Off_Value))
-        print('CC number: ' + str(CC_Number))
-        print('Assign type: ' + str(Assign_Type))
-        print('Midi Channel: ' + str(Midi_Channel))
-        print('Switch Type: ' + str(Switch_Type))
+        print('On value: ' + str(on_value))
+        print('Off value: ' + str(off_value))
+        print('CC number: ' + str(cc_number))
+        print('Assign type: ' + str(assign_type))
+        print('Midi Channel: ' + str(midi_channel))
+        print('Switch Type: ' + str(switch_type))
         print(widget.get_active())
 
-        if (Assign_Type == 1):
-            if (Switch_Type == 0):
-                self.Midi_Comm.Send_Midi_CC(
-                    Channel=Midi_Channel, CC=CC_Number, Value=On_Value)
+        if (assign_type == 1):
+            if (switch_type == 0):
+                self.midi_comm.send_midi_cc(
+                    channel=midi_channel, cc=cc_number, value=on_value)
                 widget.set_active(True)
-            elif (Switch_Type == 1):
-                Toggle_State = widget.get_active()
-                if (Toggle_State):
-                    self.Midi_Comm.Send_Midi_CC(
-                        Channel=Midi_Channel, CC=CC_Number, Value=Off_Value)
-                elif (not Toggle_State):
-                    self.Midi_Comm.Send_Midi_CC(
-                        Channel=Midi_Channel, CC=CC_Number, Value=On_Value)
+            elif (switch_type == 1):
+                toggle_state = widget.get_active()
+                if (toggle_state):
+                    self.midi_comm.send_midi_cc(
+                        channel=midi_channel, cc=cc_number, value=off_value)
+                elif (not toggle_state):
+                    self.midi_comm.send_midi_cc(
+                        channel=midi_channel, cc=cc_number, value=on_value)
 
         return False
 
-    def Button_Released_Event(self, widget, data=None):
+    def button_released_event(self, widget, data=None):
         print('Button Released Event')
         if (data['Widget'] == 'Button_A'):
-            Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].SW_A_Assign_Type
-            CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_CC
-            Off_Value = self.Scene[self.Current_Scene].Block[data['Block']
-                                                             ].SW_A_Off_Value
-            On_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_A_On_Value
-            Switch_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].SW_A_Switch_Type
+            assign_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].sw_a_assign_type
+            cc_number = self.scene[self.current_scene].block[data['Block']].sw_a_cc
+            off_value = self.scene[self.current_scene].block[data['Block']
+                                                             ].sw_a_off_value
+            on_value = self.scene[self.current_scene].block[data['Block']].sw_a_on_value
+            switch_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].sw_a_switch_type
         elif (data['Widget'] == 'Button_B'):
-            Assign_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].SW_B_Assign_Type
-            CC_Number = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_CC
-            Off_Value = self.Scene[self.Current_Scene].Block[data['Block']
-                                                             ].SW_B_Off_Value
-            On_Value = self.Scene[self.Current_Scene].Block[data['Block']].SW_B_On_Value
-            Switch_Type = self.Scene[self.Current_Scene].Block[data['Block']
-                                                               ].SW_B_Switch_Type
+            assign_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].sw_b_assign_type
+            cc_number = self.scene[self.current_scene].block[data['Block']].sw_b_cc
+            off_value = self.scene[self.current_scene].block[data['Block']
+                                                             ].sw_b_off_value
+            on_value = self.scene[self.current_scene].block[data['Block']].sw_b_on_value
+            switch_type = self.scene[self.current_scene].block[data['Block']
+                                                               ].sw_b_switch_type
 
-        Block_Midi_Channel = self.Scene[self.Current_Scene].Block[data['Block']
-                                                                  ].Block_Midi_Channel
-        Midi_Channel = Block_Midi_Channel
-        if (Midi_Channel == 16):
-            Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+        block_midi_channel = self.scene[self.current_scene].block[data['Block']
+                                                                  ].block_midi_channel
+        midi_channel = block_midi_channel
+        if (midi_channel == 16):
+            midi_channel = self.scene[self.current_scene].common.scene_midi_channel
 
-        print('On value: ' + str(On_Value))
-        print('Off value: ' + str(Off_Value))
-        print('CC number: ' + str(CC_Number))
-        print('Assign type: ' + str(Assign_Type))
-        print('Midi Channel: ' + str(Midi_Channel))
-        print('Switch Type: ' + str(Switch_Type))
+        print('On value: ' + str(on_value))
+        print('Off value: ' + str(off_value))
+        print('CC number: ' + str(cc_number))
+        print('Assign type: ' + str(assign_type))
+        print('Midi Channel: ' + str(midi_channel))
+        print('Switch Type: ' + str(switch_type))
 
-        if (Assign_Type == 1 and Switch_Type == 0):
-            self.Midi_Comm.Send_Midi_CC(
-                Channel=Midi_Channel, CC=CC_Number, Value=Off_Value)
+        if (assign_type == 1 and switch_type == 0):
+            self.midi_comm.send_midi_cc(
+                channel=midi_channel, cc=cc_number, value=off_value)
 
         return False
 
-    def Transport_Button_Pressed_Event(self, widget, data=None):
+    def transport_button_pressed_event(self, widget, data=None):
         print('Transport_Button_Pressed_Event')
-        Assign_Type = self.Scene[self.Current_Scene].Transport_Button[data['Button']].Assign_Type
-        CC_Number = self.Scene[self.Current_Scene].Transport_Button[data['Button']].CC
-        MMC_Command = self.Scene[self.Current_Scene].Transport_Button[data['Button']].MMC_Command + 1
-        MMC_Device_ID = self.Scene[self.Current_Scene].Transport_Button[data['Button']].MMC_Device_ID
-        Switch_Type = self.Scene[self.Current_Scene].Transport_Button[data['Button']].Switch_Type
+        assign_type = self.scene[self.current_scene].transport_button[data['Button']].assign_type
+        cc_number = self.scene[self.current_scene].transport_button[data['Button']].cc
+        mmc_command = self.scene[self.current_scene].transport_button[data['Button']].mmc_command + 1
+        mmc_device_id = self.scene[self.current_scene].transport_button[data['Button']].mmc_device_id
+        switch_type = self.scene[self.current_scene].transport_button[data['Button']].switch_type
 
-        print('Assign type: ' + str(Assign_Type))
-        print('CC: ' + str(CC_Number))
-        print('MMC Command: ' + str(MMC_Command))
-        print('MMC Device ID: ' + str(MMC_Device_ID))
-        print('Switch Type: ' + str(Switch_Type))
+        print('Assign type: ' + str(assign_type))
+        print('CC: ' + str(cc_number))
+        print('MMC Command: ' + str(mmc_command))
+        print('MMC Device ID: ' + str(mmc_device_id))
+        print('Switch Type: ' + str(switch_type))
 
-        if (Assign_Type == 1):
-            Transport_Midi_Channel = self.Scene[self.Current_Scene].Transport_Midi_Channel
-            Midi_Channel = Transport_Midi_Channel
-            if (Midi_Channel == 16):
-                Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
-            if (Switch_Type == 0):
-                self.Midi_Comm.Send_Midi_CC(
-                    Channel=Midi_Channel, CC=CC_Number, Value=127)
+        if (assign_type == 1):
+            transport_midi_channel = self.scene[self.current_scene].transport_midi_channel
+            midi_channel = transport_midi_channel
+            if (midi_channel == 16):
+                midi_channel = self.scene[self.current_scene].common.scene_midi_channel
+            if (switch_type == 0):
+                self.midi_comm.send_midi_cc(
+                    channel=midi_channel, cc=cc_number, value=127)
                 widget.set_active(True)
-            elif (Switch_Type == 1):
-                Toggle_State = widget.get_active()
-                if (Toggle_State):
-                    self.Midi_Comm.Send_Midi_CC(
-                        Channel=Midi_Channel, CC=CC_Number, Value=0)
-                elif (not Toggle_State):
-                    self.Midi_Comm.Send_Midi_CC(
-                        Channel=Midi_Channel, CC=CC_Number, Value=127)
+            elif (switch_type == 1):
+                toggle_state = widget.get_active()
+                if (toggle_state):
+                    self.midi_comm.send_midi_cc(
+                        channel=midi_channel, cc=cc_number, value=0)
+                elif (not toggle_state):
+                    self.midi_comm.send_midi_cc(
+                        channel=midi_channel, cc=cc_number, value=127)
 
-        elif (Assign_Type == 2):
-            self.Midi_Comm.Send_Midi_MMC(
-                Device_ID=MMC_Device_ID, Command=MMC_Command)
+        elif (assign_type == 2):
+            self.midi_comm.send_midi_mmc(
+                Device_ID=mmc_device_id, Command=mmc_command)
             widget.set_active(True)
 
         return False
 
-    def Transport_Button_Released_Event(self, widget, data=None):
-        Assign_Type = self.Scene[self.Current_Scene].Transport_Button[data['Button']].Assign_Type
-        CC_Number = self.Scene[self.Current_Scene].Transport_Button[data['Button']].CC
-        MMC_Command = self.Scene[self.Current_Scene].Transport_Button[data['Button']].MMC_Command + 1
-        MMC_Device_ID = self.Scene[self.Current_Scene].Transport_Button[data['Button']].MMC_Device_ID
-        Switch_Type = self.Scene[self.Current_Scene].Transport_Button[data['Button']].Switch_Type
+    def transport_button_released_event(self, widget, data=None):
+        assign_type = self.scene[self.current_scene].transport_button[data['Button']].assign_type
+        cc_number = self.scene[self.current_scene].transport_button[data['Button']].cc
+        mmc_command = self.scene[self.current_scene].transport_button[data['Button']].mmc_command + 1
+        mmc_device_id = self.scene[self.current_scene].transport_button[data['Button']].mmc_device_id
+        switch_type = self.scene[self.current_scene].transport_button[data['Button']].switch_type
 
-        print('Assign type: ' + str(Assign_Type))
-        print('CC: ' + str(CC_Number))
-        print('MMC Command: ' + str(MMC_Command))
-        print('MMC Device ID: ' + str(MMC_Device_ID))
-        print('Switch Type: ' + str(Switch_Type))
+        print('Assign type: ' + str(assign_type))
+        print('CC: ' + str(cc_number))
+        print('MMC Command: ' + str(mmc_command))
+        print('MMC Device ID: ' + str(mmc_device_id))
+        print('Switch Type: ' + str(switch_type))
 
-        Transport_Midi_Channel = self.Scene[self.Current_Scene].Transport_Midi_Channel
-        Midi_Channel = Transport_Midi_Channel
-        if (Midi_Channel == 16):
-            Midi_Channel = self.Scene[self.Current_Scene].Common.Scene_Midi_Channel
+        transport_midi_channel = self.scene[self.current_scene].transport_midi_channel
+        midi_channel = transport_midi_channel
+        if (midi_channel == 16):
+            midi_channel = self.scene[self.current_scene].common.scene_midi_channel
 
-        if (Assign_Type == 1 and Switch_Type == 0):
-            self.Midi_Comm.Send_Midi_CC(
-                Channel=Midi_Channel, CC=CC_Number, Value=0)
+        if (assign_type == 1 and switch_type == 0):
+            self.midi_comm.send_midi_cc(
+                channel=midi_channel, cc=cc_number, value=0)
 
         return False
 
-    def __init__(self, Scene, Midi_Device):
-        self.Scene = Scene
-        self.Midi_Comm = Midi_Device
-        self.Current_Block = 0
-        self.Current_Widget = None
-        self.Current_Widget_Type = None
+    def __init__(self, scene, midi_device):
+        self.scene = scene
+        self.current_scene = scene
+        self.midi_comm = midi_device
+        self.current_block = 0
+        self.current_widget = None
+        self.current_widget_type = None
 
-        self.Window = Gtk.ApplicationWindow(title="Nano")
-        self.Window.connect("delete_event", self.delete_event, None)
+        self.window = Gtk.ApplicationWindow(title="Nano")
+        self.window.connect("delete_event", self.delete_event, None)
 
         # # # # Menu # # # #
         ####################
-        self.Menu_Bar = Gtk.MenuBar()
-        self.File_Menu = Gtk.Menu()
-        self.File_Open = Gtk.MenuItem(label='Open...')
-        self.File_Save = Gtk.MenuItem(label='Save...')
-        self.File_Upload_Scene = Gtk.MenuItem(label='Upload Scene to Device')
-        self.File_Upload_Scene.connect("activate", self.Upload_Scene_Event)
-        self.File_Download_Scene = Gtk.MenuItem(
+        self.menu_bar = Gtk.MenuBar()
+        self.file_menu = Gtk.Menu()
+        self.file_open = Gtk.MenuItem(label='Open...')
+        self.file_save = Gtk.MenuItem(label='Save...')
+        self.file_upload_scene = Gtk.MenuItem(label='Upload Scene to Device')
+        self.file_upload_scene.connect("activate", self.upload_scene_event)
+        self.file_download_scene = Gtk.MenuItem(
             label='Download Scene from Device')
-        self.File_Download_Scene.connect("activate", self.Download_Scene_Event)
+        self.file_download_scene.connect("activate", self.download_scene_event)
 
-        self.File_Quit = Gtk.MenuItem(label='Quit')
-        self.File_Quit.connect("activate", lambda w: Gtk.main_quit())
+        self.file_quit = Gtk.MenuItem(label='Quit')
+        self.file_quit.connect("activate", lambda w: Gtk.main_quit())
 
-        self.File_Menu.append(child=self.File_Open)
-        self.File_Open.show()
-        self.File_Menu.append(child=self.File_Save)
-        self.File_Save.show()
-        self.File_Menu.append(child=self.File_Upload_Scene)
-        self.File_Upload_Scene.show()
-        self.File_Menu.append(child=self.File_Download_Scene)
-        self.File_Download_Scene.show()
-        self.File_Menu.append(child=self.File_Quit)
-        self.File_Quit.show()
+        self.file_menu.append(child=self.file_open)
+        self.file_open.show()
+        self.file_menu.append(child=self.file_save)
+        self.file_save.show()
+        self.file_menu.append(child=self.file_upload_scene)
+        self.file_upload_scene.show()
+        self.file_menu.append(child=self.file_download_scene)
+        self.file_download_scene.show()
+        self.file_menu.append(child=self.file_quit)
+        self.file_quit.show()
 
-        self.File_Menu_Item = Gtk.MenuItem(label='File')
-        self.File_Menu_Item.show()
-        self.File_Menu_Item.set_submenu(submenu=self.File_Menu)
+        self.file_menu_item = Gtk.MenuItem(label='File')
+        self.file_menu_item.show()
+        self.file_menu_item.set_submenu(submenu=self.file_menu)
 
-        self.Edit_Menu = Gtk.Menu()
-        self.Edit_Copy = Gtk.MenuItem(label='Copy Scene')
-        self.Edit_Copy.connect("activate", self.Copy_Scene_Event)
-        self.Edit_Paste = Gtk.MenuItem(label='Paste Scene')
-        self.Edit_Paste.connect("activate", self.Paste_Scene_Event)
+        self.edit_menu = Gtk.Menu()
+        self.edit_copy = Gtk.MenuItem(label='Copy Scene')
+        self.edit_copy.connect("activate", self.copy_scene_event)
+        self.edit_paste = Gtk.MenuItem(label='Paste Scene')
+        self.edit_paste.connect("activate", self.paste_scene_event)
 
-        self.Edit_Menu.append(child=self.Edit_Copy)
-        self.Edit_Menu.append(child=self.Edit_Paste)
-        self.Edit_Copy.show()
-        self.Edit_Paste.show()
+        self.edit_menu.append(child=self.edit_copy)
+        self.edit_menu.append(child=self.edit_paste)
+        self.edit_copy.show()
+        self.edit_paste.show()
 
-        self.Edit_Menu_Item = Gtk.MenuItem(label='Edit')
-        self.Edit_Menu_Item.show()
-        self.Edit_Menu_Item.set_submenu(submenu=self.Edit_Menu)
+        self.edit_menu_item = Gtk.MenuItem(label='Edit')
+        self.edit_menu_item.show()
+        self.edit_menu_item.set_submenu(submenu=self.edit_menu)
 
-        self.Menu_Bar.append(child=self.File_Menu_Item)
-        self.Menu_Bar.append(child=self.Edit_Menu_Item)
-        self.Menu_Bar.show()
+        self.menu_bar.append(child=self.file_menu_item)
+        self.menu_bar.append(child=self.edit_menu_item)
+        self.menu_bar.show()
 
-        self.V_Box_Top = Gtk.VBox()
-        self.V_Box_Top.pack_start(
-            child=self.Menu_Bar, expand=False, fill=False, padding=2)
-        self.H_Box_Level_1 = Gtk.HBox()
+        self.v_box_top = Gtk.VBox()
+        self.v_box_top.pack_start(
+            child=self.menu_bar, expand=False, fill=False, padding=2)
+        self.h_box_level_1 = Gtk.HBox()
 
         # # # # Transport and Scene Buttons # # # #
         ###########################################
-        self.Transport_Table = Gtk.Table(rows=3, columns=3)
-        self.Transport_Rewind = Gtk.ToggleButton(label='REW')
-        self.Transport_Rewind.connect("focus-in-event", self.Focus_Event,
+        self.transport_table = Gtk.Table(rows=3, columns=3)
+        self.transport_rewind = Gtk.ToggleButton(label='REW')
+        self.transport_rewind.connect("focus-in-event", self.focus_event,
                                       {'Widget': 0, 'Widget_Type': 'Transport'})
-        self.Transport_Rewind.connect("pressed", self.Transport_Button_Pressed_Event,
+        self.transport_rewind.connect("pressed", self.transport_button_pressed_event,
                                       {'Widget': 'Transport', 'Button': 0})
-        self.Transport_Rewind.connect("released", self.Transport_Button_Released_Event,
+        self.transport_rewind.connect("released", self.transport_button_released_event,
                                       {'Widget': 'Transport', 'Button': 0})
 
-        self.Transport_Play = Gtk.ToggleButton(label='PLAY')
-        self.Transport_Play.connect("focus-in-event", self.Focus_Event,
+        self.transport_play = Gtk.ToggleButton(label='PLAY')
+        self.transport_play.connect("focus-in-event", self.focus_event,
                                     {'Widget': 1, 'Widget_Type': 'Transport'})
-        self.Transport_Play.connect("pressed", self.Transport_Button_Pressed_Event,
+        self.transport_play.connect("pressed", self.transport_button_pressed_event,
                                     {'Widget': 'Transport', 'Button': 1})
-        self.Transport_Play.connect("released", self.Transport_Button_Released_Event,
+        self.transport_play.connect("released", self.transport_button_released_event,
                                     {'Widget': 'Transport', 'Button': 1})
 
-        self.Transport_Fast_Forward = Gtk.ToggleButton(label='FF')
-        self.Transport_Fast_Forward.connect("focus-in-event", self.Focus_Event,
+        self.transport_fast_forward = Gtk.ToggleButton(label='FF')
+        self.transport_fast_forward.connect("focus-in-event", self.focus_event,
                                             {'Widget': 2, 'Widget_Type': 'Transport'})
-        self.Transport_Fast_Forward.connect("pressed", self.Transport_Button_Pressed_Event,
+        self.transport_fast_forward.connect("pressed", self.transport_button_pressed_event,
                                             {'Widget': 'Transport', 'Button': 2})
-        self.Transport_Fast_Forward.connect("released", self.Transport_Button_Released_Event,
+        self.transport_fast_forward.connect("released", self.transport_button_released_event,
                                             {'Widget': 'Transport', 'Button': 2})
 
-        self.Transport_Loop = Gtk.ToggleButton(label='LOOP')
-        self.Transport_Loop.connect("focus-in-event", self.Focus_Event,
+        self.transport_loop = Gtk.ToggleButton(label='LOOP')
+        self.transport_loop.connect("focus-in-event", self.focus_event,
                                     {'Widget': 3, 'Widget_Type': 'Transport'})
-        self.Transport_Loop.connect("pressed", self.Transport_Button_Pressed_Event,
+        self.transport_loop.connect("pressed", self.transport_button_pressed_event,
                                     {'Widget': 'Transport', 'Button': 3})
-        self.Transport_Loop.connect("released", self.Transport_Button_Released_Event,
+        self.transport_loop.connect("released", self.transport_button_released_event,
                                     {'Widget': 'Transport', 'Button': 3})
 
-        self.Transport_Stop = Gtk.ToggleButton(label='STOP')
-        self.Transport_Stop.connect("focus-in-event", self.Focus_Event,
+        self.transport_stop = Gtk.ToggleButton(label='STOP')
+        self.transport_stop.connect("focus-in-event", self.focus_event,
                                     {'Widget': 4, 'Widget_Type': 'Transport'})
-        self.Transport_Stop.connect("pressed", self.Transport_Button_Pressed_Event,
+        self.transport_stop.connect("pressed", self.transport_button_pressed_event,
                                     {'Widget': 'Transport', 'Button': 4})
-        self.Transport_Stop.connect("released", self.Transport_Button_Released_Event,
+        self.transport_stop.connect("released", self.transport_button_released_event,
                                     {'Widget': 'Transport', 'Button': 4})
 
-        self.Transport_Record = Gtk.ToggleButton('REC')
-        self.Transport_Record.connect("focus-in-event", self.Focus_Event,
+        self.transport_record = Gtk.ToggleButton('REC')
+        self.transport_record.connect("focus-in-event", self.focus_event,
                                       {'Widget': 5, 'Widget_Type': 'Transport'})
-        self.Transport_Record.connect("pressed", self.Transport_Button_Pressed_Event,
+        self.transport_record.connect("pressed", self.transport_button_pressed_event,
                                       {'Widget': 'Transport', 'Button': 5})
-        self.Transport_Record.connect("released", self.Transport_Button_Released_Event,
+        self.transport_record.connect("released", self.transport_button_released_event,
                                       {'Widget': 'Transport', 'Button': 5})
 
-        self.Scene_H_Box = Gtk.HBox()
-        self.Scene_Button = Gtk.Button('SCENE')
-        self.Scene_Button.connect(
-            "clicked", self.Scene_Cycle_Event, {'Type': 'Cyclic', })
-        self.Scene_1_Light = Gtk.RadioButton(
+        self.scene_h_box = Gtk.HBox()
+        self.scene_button = Gtk.Button('SCENE')
+        self.scene_button.connect(
+            "clicked", self.scene_cycle_event, {'Type': 'Cyclic', })
+        self.scene_1_light = Gtk.RadioButton(
             group=None, label='1', use_underline=False)
-        self.Scene_1_Light.set_name(name='Scene_1')
-        self.Scene_1_Light.connect(
-            "clicked", self.Scene_Change_Event, {'Type': 'Direct', })
-        self.Scene_2_Light = Gtk.RadioButton(
-            group=self.Scene_1_Light, label='2', use_underline=False)
-        self.Scene_2_Light.set_name(name='Scene_2')
-        self.Scene_2_Light.connect(
-            "clicked", self.Scene_Change_Event, {'Type': 'Direct', })
-        self.Scene_3_Light = Gtk.RadioButton(
-            group=self.Scene_1_Light, label='3', use_underline=False)
-        self.Scene_3_Light.set_name(name='Scene_3')
-        self.Scene_3_Light.connect(
-            "clicked", self.Scene_Change_Event, {'Type': 'Direct', })
-        self.Scene_4_Light = Gtk.RadioButton(
-            group=self.Scene_1_Light, label='4', use_underline=False)
-        self.Scene_4_Light.set_name(name='Scene_4')
-        self.Scene_4_Light.connect(
-            "clicked", self.Scene_Change_Event, {'Type': 'Direct', })
-        self.Scene_H_Box.pack_start(self.Scene_Button,
+        self.scene_1_light.set_name(name='Scene_1')
+        self.scene_1_light.connect(
+            "clicked", self.scene_change_event, {'Type': 'Direct', })
+        self.scene_2_light = Gtk.RadioButton(
+            group=self.scene_1_light, label='2', use_underline=False)
+        self.scene_2_light.set_name(name='Scene_2')
+        self.scene_2_light.connect(
+            "clicked", self.scene_change_event, {'Type': 'Direct', })
+        self.scene_3_light = Gtk.RadioButton(
+            group=self.scene_1_light, label='3', use_underline=False)
+        self.scene_3_light.set_name(name='Scene_3')
+        self.scene_3_light.connect(
+            "clicked", self.scene_change_event, {'Type': 'Direct', })
+        self.scene_4_light = Gtk.RadioButton(
+            group=self.scene_1_light, label='4', use_underline=False)
+        self.scene_4_light.set_name(name='Scene_4')
+        self.scene_4_light.connect(
+            "clicked", self.scene_change_event, {'Type': 'Direct', })
+        self.scene_h_box.pack_start(self.scene_button,
                                     expand=True, fill=True, padding=0)
-        self.Scene_H_Box.pack_start(self.Scene_1_Light,
+        self.scene_h_box.pack_start(self.scene_1_light,
                                     expand=True, fill=True, padding=0)
-        self.Scene_H_Box.pack_start(self.Scene_2_Light,
+        self.scene_h_box.pack_start(self.scene_2_light,
                                     expand=True, fill=True, padding=0)
-        self.Scene_H_Box.pack_start(self.Scene_3_Light,
+        self.scene_h_box.pack_start(self.scene_3_light,
                                     expand=True, fill=True, padding=0)
-        self.Scene_H_Box.pack_start(self.Scene_4_Light,
+        self.scene_h_box.pack_start(self.scene_4_light,
                                     expand=True, fill=True, padding=0)
-        self.Scene_Button.show()
-        self.Scene_1_Light.show()
-        self.Scene_2_Light.show()
-        self.Scene_3_Light.show()
-        self.Scene_4_Light.show()
-        self.Scene_H_Box.show()
+        self.scene_button.show()
+        self.scene_1_light.show()
+        self.scene_2_light.show()
+        self.scene_3_light.show()
+        self.scene_4_light.show()
+        self.scene_h_box.show()
 
-        self.Transport_Table.attach(child=self.Transport_Rewind,
+        self.transport_table.attach(child=self.transport_rewind,
                                     left_attach=0,
                                     right_attach=1,
                                     top_attach=0,
                                     bottom_attach=1)
-        self.Transport_Rewind.show()
-        self.Transport_Table.attach(child=self.Transport_Play,
+        self.transport_rewind.show()
+        self.transport_table.attach(child=self.transport_play,
                                     left_attach=1,
                                     right_attach=2,
                                     top_attach=0,
                                     bottom_attach=1)
-        self.Transport_Play.show()
-        self.Transport_Table.attach(child=self.Transport_Fast_Forward,
+        self.transport_play.show()
+        self.transport_table.attach(child=self.transport_fast_forward,
                                     left_attach=2,
                                     right_attach=3,
                                     top_attach=0,
                                     bottom_attach=1)
-        self.Transport_Fast_Forward.show()
-        self.Transport_Table.attach(child=self.Transport_Loop,
+        self.transport_fast_forward.show()
+        self.transport_table.attach(child=self.transport_loop,
                                     left_attach=0,
                                     right_attach=1,
                                     top_attach=1,
                                     bottom_attach=2)
-        self.Transport_Loop.show()
-        self.Transport_Table.attach(child=self.Transport_Stop,
+        self.transport_loop.show()
+        self.transport_table.attach(child=self.transport_stop,
                                     left_attach=1,
                                     right_attach=2,
                                     top_attach=1,
                                     bottom_attach=2)
-        self.Transport_Stop.show()
-        self.Transport_Table.attach(child=self.Transport_Record,
+        self.transport_stop.show()
+        self.transport_table.attach(child=self.transport_record,
                                     left_attach=2,
                                     right_attach=3,
                                     top_attach=1,
                                     bottom_attach=2)
-        self.Transport_Record.show()
-        self.Transport_Table.attach(child=self.Scene_H_Box,
+        self.transport_record.show()
+        self.transport_table.attach(child=self.scene_h_box,
                                     left_attach=0,
                                     right_attach=3,
                                     top_attach=2,
                                     bottom_attach=3)
-        self.Transport_Table.show()
+        self.transport_table.show()
 
-        self.Kontrol_Blocks = []
+        self.kontrol_blocks = []
         for i in range(9):
-            block = Kontrol_Block(index=i,
-                                  fader_event=self.Fader_Event,
-                                  focus_event=self.Focus_Event,
-                                  button_pressed_event=self.Button_Pressed_Event,
-                                  button_released_event=self.Button_Released_Event)
-            self.Kontrol_Blocks.append(block)
+            block = KontrolBlock(index=i,
+                                 fader_event=self.fader_event,
+                                 focus_event=self.focus_event,
+                                 button_pressed_event=self.button_pressed_event,
+                                 button_released_event=self.button_released_event)
+            self.kontrol_blocks.append(block)
 
         # # # # Common controls # # # #
         ###############################
-        self.Common_H_Box = Gtk.HBox()
-        self.Transport_Midi_Channel_Label = Gtk.Label.new(
+        self.common_h_box = Gtk.HBox()
+        self.transport_midi_channel_label = Gtk.Label.new(
             str='Transport MIDI Channel:')
-        self.Transport_Midi_Channel = Gtk.ComboBoxText()
-        self.Transport_Midi_Channel.connect("changed", self.Combo_Event,
+        self.transport_midi_channel = Gtk.ComboBoxText()
+        self.transport_midi_channel.connect("changed", self.combo_event,
                                             {'Widget': 'Transport_Midi_Channel', 'Widget_Type': 'Slider'})
-        self.Block_Midi_Channel_Label = Gtk.Label(label='Block MIDI Channel:')
-        self.Block_Midi_Channel = Gtk.ComboBoxText()
-        self.Block_Midi_Channel.connect("changed", self.Combo_Event,
+        self.block_midi_channel_label = Gtk.Label(label='Block MIDI Channel:')
+        self.block_midi_channel = Gtk.ComboBoxText()
+        self.block_midi_channel.connect("changed", self.combo_event,
                                         {'Widget': 'Block_Midi_Channel', 'Widget_Type': 'Slider'})
-        self.Scene_Name_Label = Gtk.Label(label='Scene Name:')
-        self.Scene_Name = Gtk.Entry()
-        self.Scene_Name.connect("focus-out-event", self.Entry_Event,
+        self.scene_name_label = Gtk.Label(label='Scene Name:')
+        self.scene_name = Gtk.Entry()
+        self.scene_name.connect("focus-out-event", self.entry_event,
                                 {'Widget': 'Scene_Name', 'Widget_Type': 'Entry'})
-        self.Scene_Midi_Channel_Label = Gtk.Label(label='Scene MIDI Channel:')
-        self.Scene_Midi_Channel = Gtk.ComboBoxText()
+        self.scene_midi_channel_label = Gtk.Label(label='Scene MIDI Channel:')
+        self.scene_midi_channel = Gtk.ComboBoxText()
 
         for i in range(1, 17):
             channel = '{}'.format(i)
-            self.Transport_Midi_Channel.append_text(channel)
-            self.Block_Midi_Channel.append_text(channel)
-            self.Scene_Midi_Channel.append_text(channel)
+            self.transport_midi_channel.append_text(channel)
+            self.block_midi_channel.append_text(channel)
+            self.scene_midi_channel.append_text(channel)
 
-        self.Transport_Midi_Channel.append_text('Scene')
-        self.Block_Midi_Channel.append_text('Scene')
+        self.transport_midi_channel.append_text('Scene')
+        self.block_midi_channel.append_text('Scene')
 
-        self.Scene_Midi_Channel.connect("changed", self.Combo_Event,
+        self.scene_midi_channel.connect("changed", self.combo_event,
                                         {'Widget': 'Scene_Midi_Channel', 'Widget_Type': 'Slider'})
 
-        self.Common_H_Box.pack_start(self.Transport_Midi_Channel_Label,
+        self.common_h_box.pack_start(self.transport_midi_channel_label,
                                      expand=True, fill=True, padding=2)
-        self.Common_H_Box.pack_start(self.Transport_Midi_Channel,
+        self.common_h_box.pack_start(self.transport_midi_channel,
                                      expand=True, fill=True, padding=2)
-        self.Common_H_Box.pack_start(self.Block_Midi_Channel_Label,
+        self.common_h_box.pack_start(self.block_midi_channel_label,
                                      expand=True, fill=True, padding=2)
-        self.Common_H_Box.pack_start(self.Block_Midi_Channel,
+        self.common_h_box.pack_start(self.block_midi_channel,
                                      expand=True, fill=True, padding=2)
-        self.Common_H_Box.pack_start(self.Scene_Name_Label,
+        self.common_h_box.pack_start(self.scene_name_label,
                                      expand=True, fill=True, padding=2)
-        self.Common_H_Box.pack_start(self.Scene_Name,
+        self.common_h_box.pack_start(self.scene_name,
                                      expand=True, fill=True, padding=2)
-        self.Common_H_Box.pack_start(self.Scene_Midi_Channel_Label,
+        self.common_h_box.pack_start(self.scene_midi_channel_label,
                                      expand=True, fill=True, padding=2)
-        self.Common_H_Box.pack_start(self.Scene_Midi_Channel,
+        self.common_h_box.pack_start(self.scene_midi_channel,
                                      expand=True, fill=True, padding=2)
-        self.Transport_Midi_Channel_Label.show()
-        self.Transport_Midi_Channel.show()
-        self.Block_Midi_Channel_Label.show()
-        self.Block_Midi_Channel.show()
-        self.Scene_Name_Label.show()
-        self.Scene_Name.show()
-        self.Scene_Midi_Channel_Label.show()
-        self.Scene_Midi_Channel.show()
-        self.Common_H_Box.show()
+        self.transport_midi_channel_label.show()
+        self.transport_midi_channel.show()
+        self.block_midi_channel_label.show()
+        self.block_midi_channel.show()
+        self.scene_name_label.show()
+        self.scene_name.show()
+        self.scene_midi_channel_label.show()
+        self.scene_midi_channel.show()
+        self.common_h_box.show()
 
         # # # # Transport controls # # # #
         ##################################
-        self.Transport_Control_Table = Gtk.Table(rows=4, columns=4)
-        self.Transport_Assign_Type_Label = Gtk.Label(label='Assign Type:')
-        self.Transport_Assign_Type = Gtk.ComboBoxText()
-        self.Transport_Assign_Type.append_text('No Assign')
-        self.Transport_Assign_Type.append_text('CC')
-        self.Transport_Assign_Type.append_text('MMC')
-        self.Transport_Assign_Type.connect("changed", self.Combo_Event,
+        self.transport_control_table = Gtk.Table(rows=4, columns=4)
+        self.transport_assign_type_label = Gtk.Label(label='Assign Type:')
+        self.transport_assign_type = Gtk.ComboBoxText()
+        self.transport_assign_type.append_text('No Assign')
+        self.transport_assign_type.append_text('CC')
+        self.transport_assign_type.append_text('MMC')
+        self.transport_assign_type.connect("changed", self.combo_event,
                                            {'Widget': 'Assign_Type', 'Widget_Type': 'Transport'})
-        self.Transport_CC_Label = Gtk.Label(label='CC Number:')
+        self.transport_cc_label = Gtk.Label(label='CC Number:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Transport_CC = Gtk.SpinButton(
+        self.transport_cc = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Transport_CC.set_range(min=0, max=127)
-        self.Transport_CC.set_numeric(numeric=True)
-        self.Transport_CC.connect("value-changed", self.Spin_Event,
+        self.transport_cc.set_range(min=0, max=127)
+        self.transport_cc.set_numeric(numeric=True)
+        self.transport_cc.connect("value-changed", self.spin_event,
                                   {'Widget': 'CC', 'Widget_Type': 'Transport'})
-        self.Transport_MMC_Command_Label = Gtk.Label(label='MMC Command:')
-        self.Transport_MMC_Command = Gtk.ComboBoxText()
-        self.Transport_MMC_Command.append_text('Stop')
-        self.Transport_MMC_Command.append_text('Play')
-        self.Transport_MMC_Command.append_text('Deffered Play')
-        self.Transport_MMC_Command.append_text('Fast Forward')
-        self.Transport_MMC_Command.append_text('Rewind')
-        self.Transport_MMC_Command.append_text('Record Strobe')
-        self.Transport_MMC_Command.append_text('Record Exit')
-        self.Transport_MMC_Command.append_text('Record Pause')
-        self.Transport_MMC_Command.append_text('Pause')
-        self.Transport_MMC_Command.append_text('Eject')
-        self.Transport_MMC_Command.append_text('Chase')
-        self.Transport_MMC_Command.append_text('Command Error Reset')
-        self.Transport_MMC_Command.append_text('MMC Reset')
-        self.Transport_MMC_Command.connect("changed", self.Combo_Event,
+        self.transport_mmc_command_label = Gtk.Label(label='MMC Command:')
+        self.transport_mmc_command = Gtk.ComboBoxText()
+        self.transport_mmc_command.append_text('Stop')
+        self.transport_mmc_command.append_text('Play')
+        self.transport_mmc_command.append_text('Deffered Play')
+        self.transport_mmc_command.append_text('Fast Forward')
+        self.transport_mmc_command.append_text('Rewind')
+        self.transport_mmc_command.append_text('Record Strobe')
+        self.transport_mmc_command.append_text('Record Exit')
+        self.transport_mmc_command.append_text('Record Pause')
+        self.transport_mmc_command.append_text('Pause')
+        self.transport_mmc_command.append_text('Eject')
+        self.transport_mmc_command.append_text('Chase')
+        self.transport_mmc_command.append_text('Command Error Reset')
+        self.transport_mmc_command.append_text('MMC Reset')
+        self.transport_mmc_command.connect("changed", self.combo_event,
                                            {'Widget': 'MMC_Command', 'Widget_Type': 'Transport'})
-        self.Transport_MMC_Dev_ID_Label = Gtk.Label(label='MMC Device ID:')
+        self.transport_mmc_dev_id_label = Gtk.Label(label='MMC Device ID:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Transport_MMC_Dev_ID = Gtk.SpinButton(
+        self.transport_mmc_dev_id = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Transport_MMC_Dev_ID.set_range(min=0, max=127)
-        self.Transport_MMC_Dev_ID.set_numeric(numeric=True)
-        self.Transport_MMC_Dev_ID.connect("value-changed", self.Spin_Event,
+        self.transport_mmc_dev_id.set_range(min=0, max=127)
+        self.transport_mmc_dev_id.set_numeric(numeric=True)
+        self.transport_mmc_dev_id.connect("value-changed", self.spin_event,
                                           {'Widget': 'MMC_Dev_ID', 'Widget_Type': 'Transport'})
-        self.Transport_Switch_Type_Label = Gtk.Label(label='Switch Type:')
-        self.Transport_Switch_Type = Gtk.ComboBoxText()
-        self.Transport_Switch_Type.append_text('Momentary')
-        self.Transport_Switch_Type.append_text('Toggle')
-        self.Transport_Switch_Type.connect("changed", self.Combo_Event,
+        self.transport_switch_type_label = Gtk.Label(label='Switch Type:')
+        self.transport_switch_type = Gtk.ComboBoxText()
+        self.transport_switch_type.append_text('Momentary')
+        self.transport_switch_type.append_text('Toggle')
+        self.transport_switch_type.connect("changed", self.combo_event,
                                            {'Widget': 'Switch_Type', 'Widget_Type': 'Transport'})
 
-        self.Transport_Control_Table.attach(child=self.Transport_Assign_Type_Label,
+        self.transport_control_table.attach(child=self.transport_assign_type_label,
                                             left_attach=0,
                                             right_attach=1,
                                             top_attach=0,
                                             bottom_attach=1)
-        self.Transport_Assign_Type_Label.show()
-        self.Transport_Control_Table.attach(child=self.Transport_Assign_Type,
+        self.transport_assign_type_label.show()
+        self.transport_control_table.attach(child=self.transport_assign_type,
                                             left_attach=1,
                                             right_attach=2,
                                             top_attach=0,
                                             bottom_attach=1)
-        self.Transport_Assign_Type.show()
-        self.Transport_Control_Table.attach(child=self.Transport_CC_Label,
+        self.transport_assign_type.show()
+        self.transport_control_table.attach(child=self.transport_cc_label,
                                             left_attach=0,
                                             right_attach=1,
                                             top_attach=1,
                                             bottom_attach=2)
-        self.Transport_CC_Label.show()
-        self.Transport_Control_Table.attach(child=self.Transport_CC,
+        self.transport_cc_label.show()
+        self.transport_control_table.attach(child=self.transport_cc,
                                             left_attach=1,
                                             right_attach=2,
                                             top_attach=1,
                                             bottom_attach=2)
-        self.Transport_CC.show()
-        self.Transport_Control_Table.attach(child=self.Transport_MMC_Command_Label,
+        self.transport_cc.show()
+        self.transport_control_table.attach(child=self.transport_mmc_command_label,
                                             left_attach=0,
                                             right_attach=1,
                                             top_attach=2,
                                             bottom_attach=3)
-        self.Transport_MMC_Command_Label.show()
-        self.Transport_Control_Table.attach(child=self.Transport_MMC_Command,
+        self.transport_mmc_command_label.show()
+        self.transport_control_table.attach(child=self.transport_mmc_command,
                                             left_attach=1,
                                             right_attach=2,
                                             top_attach=2,
                                             bottom_attach=3)
-        self.Transport_MMC_Command.show()
-        self.Transport_Control_Table.attach(child=self.Transport_MMC_Dev_ID_Label,
+        self.transport_mmc_command.show()
+        self.transport_control_table.attach(child=self.transport_mmc_dev_id_label,
                                             left_attach=0,
                                             right_attach=1,
                                             top_attach=3,
                                             bottom_attach=4)
-        self.Transport_MMC_Dev_ID_Label.show()
-        self.Transport_Control_Table.attach(child=self.Transport_MMC_Dev_ID,
+        self.transport_mmc_dev_id_label.show()
+        self.transport_control_table.attach(child=self.transport_mmc_dev_id,
                                             left_attach=1,
                                             right_attach=2,
                                             top_attach=3,
                                             bottom_attach=4)
-        self.Transport_MMC_Dev_ID.show()
-        self.Transport_Control_Table.attach(child=self.Transport_Switch_Type_Label,
+        self.transport_mmc_dev_id.show()
+        self.transport_control_table.attach(child=self.transport_switch_type_label,
                                             left_attach=2,
                                             right_attach=3,
                                             top_attach=0,
                                             bottom_attach=1)
-        self.Transport_Switch_Type_Label.show()
-        self.Transport_Control_Table.attach(child=self.Transport_Switch_Type,
+        self.transport_switch_type_label.show()
+        self.transport_control_table.attach(child=self.transport_switch_type,
                                             left_attach=3,
                                             right_attach=4,
                                             top_attach=0,
                                             bottom_attach=1)
-        self.Transport_Switch_Type.show()
+        self.transport_switch_type.show()
 
         # # # # Slider and Knob controls # # # #
         ########################################
-        self.Slider_Knob_Control_Table = Gtk.Table(rows=4, columns=2)
-        self.Slider_Assign_Type_Label = Gtk.Label(label='Assign type:')
-        self.Slider_Assign_Type = Gtk.ComboBoxText()
-        self.Slider_Assign_Type.append_text('No Assign')
-        self.Slider_Assign_Type.append_text('CC')
-        self.Slider_Assign_Type.connect("changed", self.Combo_Event,
+        self.slider_knob_control_table = Gtk.Table(rows=4, columns=2)
+        self.slider_assign_type_label = Gtk.Label(label='Assign type:')
+        self.slider_assign_type = Gtk.ComboBoxText()
+        self.slider_assign_type.append_text('No Assign')
+        self.slider_assign_type.append_text('CC')
+        self.slider_assign_type.connect("changed", self.combo_event,
                                         {'Widget': 'Assign_Type', 'Widget_Type': 'Slider'})
-        self.Slider_CC_Label = Gtk.Label(label='CC number:')
+        self.slider_cc_label = Gtk.Label(label='CC number:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Slider_CC = Gtk.SpinButton(
+        self.slider_cc = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Slider_CC.set_range(min=0, max=127)
-        self.Slider_CC.set_numeric(numeric=True)
-        self.Slider_CC.connect("value-changed", self.Spin_Event,
+        self.slider_cc.set_range(min=0, max=127)
+        self.slider_cc.set_numeric(numeric=True)
+        self.slider_cc.connect("value-changed", self.spin_event,
                                {'Widget': 'CC', 'Widget_Type': 'Slider'})
-        self.Slider_Min_Value_Label = Gtk.Label(label='Min value:')
+        self.slider_min_value_label = Gtk.Label(label='Min value:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Slider_Min_Value = Gtk.SpinButton(
+        self.slider_min_value = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Slider_Min_Value.set_range(min=0, max=127)
-        self.Slider_Min_Value.set_numeric(numeric=True)
-        self.Slider_Min_Value.connect("value-changed", self.Spin_Event,
+        self.slider_min_value.set_range(min=0, max=127)
+        self.slider_min_value.set_numeric(numeric=True)
+        self.slider_min_value.connect("value-changed", self.spin_event,
                                       {'Widget': 'Min_Value', 'Widget_Type': 'Slider'})
-        self.Slider_Max_Value_Label = Gtk.Label(label='Max value:')
+        self.slider_max_value_label = Gtk.Label(label='Max value:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Slider_Max_Value = Gtk.SpinButton(
+        self.slider_max_value = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Slider_Max_Value.set_range(min=0, max=127)
-        self.Slider_Max_Value.set_numeric(numeric=True)
-        self.Slider_Max_Value.connect("value-changed", self.Spin_Event,
+        self.slider_max_value.set_range(min=0, max=127)
+        self.slider_max_value.set_numeric(numeric=True)
+        self.slider_max_value.connect("value-changed", self.spin_event,
                                       {'Widget': 'Max_Value', 'Widget_Type': 'Slider'})
 
-        self.Slider_Knob_Control_Table.attach(child=self.Slider_Assign_Type_Label,
+        self.slider_knob_control_table.attach(child=self.slider_assign_type_label,
                                               left_attach=0,
                                               right_attach=1,
                                               top_attach=0,
                                               bottom_attach=1)
-        self.Slider_Assign_Type_Label.show()
-        self.Slider_Knob_Control_Table.attach(child=self.Slider_Assign_Type,
+        self.slider_assign_type_label.show()
+        self.slider_knob_control_table.attach(child=self.slider_assign_type,
                                               left_attach=1,
                                               right_attach=2,
                                               top_attach=0,
                                               bottom_attach=1)
-        self.Slider_Assign_Type.show()
-        self.Slider_Knob_Control_Table.attach(child=self.Slider_CC_Label,
+        self.slider_assign_type.show()
+        self.slider_knob_control_table.attach(child=self.slider_cc_label,
                                               left_attach=0,
                                               right_attach=1,
                                               top_attach=1,
                                               bottom_attach=2)
-        self.Slider_CC_Label.show()
-        self.Slider_Knob_Control_Table.attach(child=self.Slider_CC,
+        self.slider_cc_label.show()
+        self.slider_knob_control_table.attach(child=self.slider_cc,
                                               left_attach=1,
                                               right_attach=2,
                                               top_attach=1,
                                               bottom_attach=2)
-        self.Slider_CC.show()
-        self.Slider_Knob_Control_Table.attach(child=self.Slider_Min_Value_Label,
+        self.slider_cc.show()
+        self.slider_knob_control_table.attach(child=self.slider_min_value_label,
                                               left_attach=0,
                                               right_attach=1,
                                               top_attach=2,
                                               bottom_attach=3)
-        self.Slider_Min_Value_Label.show()
-        self.Slider_Knob_Control_Table.attach(child=self.Slider_Min_Value,
+        self.slider_min_value_label.show()
+        self.slider_knob_control_table.attach(child=self.slider_min_value,
                                               left_attach=1,
                                               right_attach=2,
                                               top_attach=2,
                                               bottom_attach=3)
-        self.Slider_Min_Value.show()
-        self.Slider_Knob_Control_Table.attach(child=self.Slider_Max_Value_Label,
+        self.slider_min_value.show()
+        self.slider_knob_control_table.attach(child=self.slider_max_value_label,
                                               left_attach=0,
                                               right_attach=1,
                                               top_attach=3,
                                               bottom_attach=4)
-        self.Slider_Max_Value_Label.show()
-        self.Slider_Knob_Control_Table.attach(child=self.Slider_Max_Value,
+        self.slider_max_value_label.show()
+        self.slider_knob_control_table.attach(child=self.slider_max_value,
                                               left_attach=1,
                                               right_attach=2,
                                               top_attach=3,
                                               bottom_attach=4)
-        self.Slider_Max_Value.show()
+        self.slider_max_value.show()
 
         # # # # Button controls # # # #
         ###############################
-        self.Button_Control_Table = Gtk.Table(rows=4, columns=4)
-        self.Button_Assign_Type_Label = Gtk.Label(label='Assign type:')
-        self.Button_Assign_Type = Gtk.ComboBoxText()
-        self.Button_Assign_Type.append_text('No Assign')
-        self.Button_Assign_Type.append_text('CC')
-        self.Button_Assign_Type.append_text('Note')
-        self.Button_Assign_Type.connect("changed", self.Combo_Event,
+        self.button_control_table = Gtk.Table(rows=4, columns=4)
+        self.button_assign_type_label = Gtk.Label(label='Assign type:')
+        self.button_assign_type = Gtk.ComboBoxText()
+        self.button_assign_type.append_text('No Assign')
+        self.button_assign_type.append_text('CC')
+        self.button_assign_type.append_text('Note')
+        self.button_assign_type.connect("changed", self.combo_event,
                                         {'Widget': 'Assign_Type', 'Widget_Type': 'Button'})
-        self.Button_CC_Label = Gtk.Label(label='CC/Note number:')
+        self.button_cc_label = Gtk.Label(label='CC/Note number:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Button_CC = Gtk.SpinButton(
+        self.button_cc = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Button_CC.set_range(min=0, max=127)
-        self.Button_CC.connect("value-changed", self.Spin_Event,
+        self.button_cc.set_range(min=0, max=127)
+        self.button_cc.connect("value-changed", self.spin_event,
                                {'Widget': 'CC', 'Widget_Type': 'Button'})
-        self.Button_Off_Value_Label = Gtk.Label(label='Off value:')
+        self.button_off_value_label = Gtk.Label(label='Off value:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Button_Off_Value = Gtk.SpinButton(
+        self.button_off_value = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Button_Off_Value.set_range(min=0, max=127)
-        self.Button_Off_Value.connect("value-changed", self.Spin_Event,
+        self.button_off_value.set_range(min=0, max=127)
+        self.button_off_value.connect("value-changed", self.spin_event,
                                       {'Widget': 'Off_Value', 'Widget_Type': 'Button'})
-        self.Button_On_Value_Label = Gtk.Label(label='On value:')
+        self.button_on_value_label = Gtk.Label(label='On value:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Button_On_Value = Gtk.SpinButton(
+        self.button_on_value = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Button_On_Value.set_range(min=0, max=127)
-        self.Button_On_Value.connect("value-changed", self.Spin_Event,
+        self.button_on_value.set_range(min=0, max=127)
+        self.button_on_value.connect("value-changed", self.spin_event,
                                      {'Widget': 'On_Value', 'Widget_Type': 'Button'})
-        self.Button_Attack_Time_Label = Gtk.Label(label='Attack time:')
+        self.button_attack_time_label = Gtk.Label(label='Attack time:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Button_Attack_Time = Gtk.SpinButton(
+        self.button_attack_time = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Button_Attack_Time.set_range(min=0, max=127)
-        self.Button_Attack_Time.connect("value-changed", self.Spin_Event,
+        self.button_attack_time.set_range(min=0, max=127)
+        self.button_attack_time.connect("value-changed", self.spin_event,
                                         {'Widget': 'Attack_Time', 'Widget_Type': 'Button'})
-        self.Button_Release_Time_Label = Gtk.Label(label='Release time:')
+        self.button_release_time_label = Gtk.Label(label='Release time:')
         adj = Gtk.Adjustment(value=0, lower=0, upper=127,
                              step_incr=1, page_incr=5, page_size=0)
-        self.Button_Release_Time = Gtk.SpinButton(
+        self.button_release_time = Gtk.SpinButton(
             adjustment=adj, climb_rate=0.0, digits=0)
-        self.Button_Release_Time.set_range(min=0, max=127)
-        self.Button_Release_Time.connect("value-changed", self.Spin_Event,
+        self.button_release_time.set_range(min=0, max=127)
+        self.button_release_time.connect("value-changed", self.spin_event,
                                          {'Widget': 'Release_Time', 'Widget_Type': 'Button'})
-        self.Button_Switch_Type_Label = Gtk.Label(label='Switch type:')
-        self.Button_Switch_Type = Gtk.ComboBoxText()
-        self.Button_Switch_Type.append_text('Momentary')
-        self.Button_Switch_Type.append_text('Toggle')
-        self.Button_Switch_Type.connect("changed", self.Combo_Event,
+        self.button_switch_type_label = Gtk.Label(label='Switch type:')
+        self.button_switch_type = Gtk.ComboBoxText()
+        self.button_switch_type.append_text('Momentary')
+        self.button_switch_type.append_text('Toggle')
+        self.button_switch_type.connect("changed", self.combo_event,
                                         {'Widget': 'Switch_Type', 'Widget_Type': 'Button'})
 
-        self.Button_Control_Table.attach(child=self.Button_Assign_Type_Label,
+        self.button_control_table.attach(child=self.button_assign_type_label,
                                          left_attach=0,
                                          right_attach=1,
                                          top_attach=0,
                                          bottom_attach=1)
-        self.Button_Assign_Type_Label.show()
-        self.Button_Control_Table.attach(child=self.Button_Assign_Type,
+        self.button_assign_type_label.show()
+        self.button_control_table.attach(child=self.button_assign_type,
                                          left_attach=1,
                                          right_attach=2,
                                          top_attach=0,
                                          bottom_attach=1)
-        self.Button_Assign_Type.show()
-        self.Button_Control_Table.attach(child=self.Button_CC_Label,
+        self.button_assign_type.show()
+        self.button_control_table.attach(child=self.button_cc_label,
                                          left_attach=0,
                                          right_attach=1,
                                          top_attach=1,
                                          bottom_attach=2)
-        self.Button_CC_Label.show()
-        self.Button_Control_Table.attach(child=self.Button_CC,
+        self.button_cc_label.show()
+        self.button_control_table.attach(child=self.button_cc,
                                          left_attach=1,
                                          right_attach=2,
                                          top_attach=1,
                                          bottom_attach=2)
-        self.Button_CC.show()
-        self.Button_Control_Table.attach(child=self.Button_Off_Value_Label,
+        self.button_cc.show()
+        self.button_control_table.attach(child=self.button_off_value_label,
                                          left_attach=0,
                                          right_attach=1,
                                          top_attach=2,
                                          bottom_attach=3)
-        self.Button_Off_Value_Label.show()
-        self.Button_Control_Table.attach(child=self.Button_Off_Value,
+        self.button_off_value_label.show()
+        self.button_control_table.attach(child=self.button_off_value,
                                          left_attach=1,
                                          right_attach=2,
                                          top_attach=2,
                                          bottom_attach=3)
-        self.Button_Off_Value.show()
-        self.Button_Control_Table.attach(child=self.Button_On_Value_Label,
+        self.button_off_value.show()
+        self.button_control_table.attach(child=self.button_on_value_label,
                                          left_attach=0,
                                          right_attach=1,
                                          top_attach=3,
                                          bottom_attach=4)
-        self.Button_On_Value_Label.show()
-        self.Button_Control_Table.attach(child=self.Button_On_Value,
+        self.button_on_value_label.show()
+        self.button_control_table.attach(child=self.button_on_value,
                                          left_attach=1,
                                          right_attach=2,
                                          top_attach=3,
                                          bottom_attach=4)
-        self.Button_On_Value.show()
-        self.Button_Control_Table.attach(child=self.Button_Attack_Time_Label,
+        self.button_on_value.show()
+        self.button_control_table.attach(child=self.button_attack_time_label,
                                          left_attach=2,
                                          right_attach=3,
                                          top_attach=0,
                                          bottom_attach=1)
-        self.Button_Attack_Time_Label.show()
-        self.Button_Control_Table.attach(child=self.Button_Attack_Time,
+        self.button_attack_time_label.show()
+        self.button_control_table.attach(child=self.button_attack_time,
                                          left_attach=3,
                                          right_attach=4,
                                          top_attach=0,
                                          bottom_attach=1)
-        self.Button_Attack_Time.show()
-        self.Button_Control_Table.attach(child=self.Button_Release_Time_Label,
+        self.button_attack_time.show()
+        self.button_control_table.attach(child=self.button_release_time_label,
                                          left_attach=2,
                                          right_attach=3,
                                          top_attach=1,
                                          bottom_attach=2)
-        self.Button_Release_Time_Label.show()
-        self.Button_Control_Table.attach(child=self.Button_Release_Time,
+        self.button_release_time_label.show()
+        self.button_control_table.attach(child=self.button_release_time,
                                          left_attach=3,
                                          right_attach=4,
                                          top_attach=1,
                                          bottom_attach=2)
-        self.Button_Release_Time.show()
-        self.Button_Control_Table.attach(child=self.Button_Switch_Type_Label,
+        self.button_release_time.show()
+        self.button_control_table.attach(child=self.button_switch_type_label,
                                          left_attach=2,
                                          right_attach=3,
                                          top_attach=2,
                                          bottom_attach=3)
-        self.Button_Switch_Type_Label.show()
-        self.Button_Control_Table.attach(child=self.Button_Switch_Type,
+        self.button_switch_type_label.show()
+        self.button_control_table.attach(child=self.button_switch_type,
                                          left_attach=3,
                                          right_attach=4,
                                          top_attach=2,
                                          bottom_attach=3)
-        self.Button_Switch_Type.show()
+        self.button_switch_type.show()
 
-        self.Status_Bar = Gtk.Statusbar()
-        self.Status_Bar.show()
-        self.Status_Bar_Context_ID = self.Status_Bar.get_context_id('Message')
-        self.Status_Bar.push(self.Status_Bar_Context_ID, 'Status Bar')
+        self.status_bar = Gtk.Statusbar()
+        self.status_bar.show()
+        self.status_bar_context_id = self.status_bar.get_context_id('Message')
+        self.status_bar.push(self.status_bar_context_id, 'Status Bar')
 
-        self.H_Box_Level_1.pack_start(self.Transport_Table,
+        self.h_box_level_1.pack_start(self.transport_table,
                                       expand=True, fill=True, padding=2)
-        for block in self.Kontrol_Blocks:
-            self.H_Box_Level_1.pack_start(
-                block.Table, expand=True, fill=True, padding=2)
+        for block in self.kontrol_blocks:
+            self.h_box_level_1.pack_start(
+                block.table, expand=True, fill=True, padding=2)
 
-        self.H_Box_Level_1.show()
-        self.H_Box_Level_1.set_size_request(width=-1, height=-1)
+        self.h_box_level_1.show()
+        self.h_box_level_1.set_size_request(width=-1, height=-1)
         # self.Slider_Knob_Control_Table.set_size_request(width=-1, height=150)
-        self.V_Box_Top.pack_start(self.H_Box_Level_1,
+        self.v_box_top.pack_start(self.h_box_level_1,
                                   expand=True, fill=True, padding=2)
-        self.V_Box_Top.pack_start(self.Common_H_Box,
+        self.v_box_top.pack_start(self.common_h_box,
                                   expand=False, fill=False, padding=2)
-        self.V_Box_Top.pack_start(self.Slider_Knob_Control_Table,
+        self.v_box_top.pack_start(self.slider_knob_control_table,
                                   expand=False, fill=False, padding=4)
-        self.V_Box_Top.pack_start(self.Button_Control_Table,
+        self.v_box_top.pack_start(self.button_control_table,
                                   expand=False, fill=False, padding=3)
-        self.V_Box_Top.pack_start(self.Transport_Control_Table,
+        self.v_box_top.pack_start(self.transport_control_table,
                                   expand=False, fill=False, padding=3)
-        self.V_Box_Top.pack_start(self.Status_Bar,
+        self.v_box_top.pack_start(self.status_bar,
                                   expand=False, fill=False, padding=2)
-        self.V_Box_Top.show()
+        self.v_box_top.show()
 
-        self.Window.add(self.V_Box_Top)
-        self.Window.show()
+        self.window.add(self.v_box_top)
+        self.window.show()
 
-        self.Scene_1_Light.clicked()
+        self.scene_1_light.clicked()
 
     def main(self):
         Gtk.main()

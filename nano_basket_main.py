@@ -20,17 +20,17 @@
 #   You should have received a copy of the GNU General Public License
 #   along with Nano Basket.  If not, see <http://www.gnu.org/licenses/>.
 
-from nano_basket_gui import Nano_Kontrol_Gui
-from nano_basket_backend import Nano_Kontrol_Scene, Nano_Kontrol_Alsa_Midi_Comm
+from nano_basket_gui import NanoKontrolGui
+from nano_basket_backend import NanoKontrolScene, NanoKontrolAlsaMidiComm
 
-Scene_1 = Nano_Kontrol_Scene()
-Scene_2 = Nano_Kontrol_Scene()
-Scene_3 = Nano_Kontrol_Scene()
-Scene_4 = Nano_Kontrol_Scene()
-Clipboard_Scene = Nano_Kontrol_Scene()
+Scene_1 = NanoKontrolScene()
+Scene_2 = NanoKontrolScene()
+Scene_3 = NanoKontrolScene()
+Scene_4 = NanoKontrolScene()
+Clipboard_Scene = NanoKontrolScene()
 
 Scenes = [Scene_1, Scene_2, Scene_3, Scene_4, Clipboard_Scene]
-Midi_Device = Nano_Kontrol_Alsa_Midi_Comm()
+Midi_Device = NanoKontrolAlsaMidiComm()
 
-Gui = Nano_Kontrol_Gui(Scenes, Midi_Device)
+Gui = NanoKontrolGui(Scenes, Midi_Device)
 Gui.main()
