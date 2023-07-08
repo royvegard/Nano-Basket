@@ -203,7 +203,7 @@ class NanoKontrolScene:
     def parse_data(self, data):
         """ """
 
-        if (len(data) != 307):
+        if len(data) != 307:
             return
 
         data_list = list(data[13:])
@@ -281,9 +281,9 @@ class NanoKontrolAlsaMidiComm:
     def scene_change_request(self, scene_number=0):
         """Sends a scene change request to the device."""
 
-        if (scene_number > 3):
+        if scene_number > 3:
             scene_number = 3
-        elif (scene_number < 0):
+        elif scene_number < 0:
             scene_number = 0
 
         global_channel = self.search_device_request()[4]
@@ -306,10 +306,10 @@ class NanoKontrolAlsaMidiComm:
         response = self.seq.receive_events(timeout=1000, maxevents=200)
 
         for res in response:
-            if ('ext' in res.get_data().keys()):
+            if 'ext' in res.get_data().keys():
                 print("Reply " + " ".join("{:02x}".format(x)
                       for x in res.get_data()['ext']))
-                if (res.get_data()['ext'][9] == scene_number):
+                if res.get_data()['ext'][9] == scene_number:
                     print('Scene change Success!')
                     return True
 
@@ -340,7 +340,7 @@ class NanoKontrolAlsaMidiComm:
 
         self.flush_events()
 
-        if (scene_number):
+        if scene_number:
             self.scene_change_request(scene_number)
 
         self.event.set_data({'ext': sysex})
@@ -350,18 +350,18 @@ class NanoKontrolAlsaMidiComm:
         response = self.seq.receive_events(timeout=1000, maxevents=200)
 
         for res in response:
-            if ('ext' in res.get_data().keys()):
+            if 'ext' in res.get_data().keys():
                 print("Reply " + " ".join("{:02x}".format(x)
                       for x in res.get_data()['ext']))
-                if (res.get_data()['ext'][9] == 0x23):
+                if res.get_data()['ext'][9] == 0x23:
                     print('Data load Success!')
-                elif (res.get_data()['ext'][9] == 0x24):
+                elif res.get_data()['ext'][9] == 0x24:
                     print('Data load Fail!')
 
     def scene_dump_request(self, scene_number=None):
         """Reads the scene configuration from the device."""
 
-        if (scene_number):
+        if scene_number:
             self.scene_change_request(scene_number)
 
         global_channel = self.search_device_request()[4]
@@ -385,7 +385,7 @@ class NanoKontrolAlsaMidiComm:
 
         data = []
         for res in response:
-            if ('ext' in res.get_data().keys()):
+            if 'ext' in res.get_data().keys():
                 print("Reply " + " ".join("{:02x}".format(x)
                       for x in res.get_data()['ext']))
                 data.extend(res.get_data()['ext'])
@@ -396,9 +396,9 @@ class NanoKontrolAlsaMidiComm:
         Normally used after a Scene_Upload_Request to permanently
         store the new scene configuration."""
 
-        if (scene_number > 3):
+        if scene_number > 3:
             scene_number = 3
-        elif (scene_number < 0):
+        elif scene_number < 0:
             scene_number = 0
 
         global_channel = self.search_device_request()[4]
@@ -421,12 +421,12 @@ class NanoKontrolAlsaMidiComm:
         response = self.seq.receive_events(timeout=1000, maxevents=200)
 
         for res in response:
-            if ('ext' in res.get_data().keys()):
+            if 'ext' in res.get_data().keys():
                 print("Reply " + " ".join("{:02x}".format(x)
                       for x in res.get_data()['ext']))
-                if (res.get_data()['ext'][9] == 0x23):
+                if res.get_data()['ext'][9] == 0x23:
                     print('Data write Success!')
-                elif (res.get_data()['ext'][9] == 0x24):
+                elif res.get_data()['ext'][9] == 0x24:
                     print('Data write Fail!')
 
     def search_device_request(self):
@@ -443,7 +443,7 @@ class NanoKontrolAlsaMidiComm:
         response = self.seq.receive_events(timeout=1000, maxevents=200)
 
         for res in response:
-            if ('ext' in res.get_data().keys()):
+            if 'ext' in res.get_data().keys():
                 print("Reply " + " ".join("{:02x}".format(x)
                       for x in res.get_data()['ext']))
                 if (res.get_data()['ext'][0:4] == [0xf0,  0x42,  0x50,  0x01]):
@@ -453,7 +453,7 @@ class NanoKontrolAlsaMidiComm:
         print('no response device request')
 
     def flush_events(self):
-        while (self.seq.receive_events(maxevents=200)):
+        while self.seq.receive_events(maxevents=200):
             pass
 
     def send_midi_cc(self, channel=0, cc=0, value=0):
@@ -475,13 +475,13 @@ class NanoKontrolAlsaMidiComm:
         nano_kontrol_port = None
         for client in clients:
             client_name = client[0]
-            if (client_name.find("nanoKONTROL") > -1):
+            if client_name.find("nanoKONTROL") > -1:
                 nano_kontrol_client = client
                 print("Found client", client_name)
                 port_name = ""
                 for port in nano_kontrol_client[2]:
                     port_name = port[0]
-                    if (port_name.find("CTRL") > -1):
+                    if port_name.find("CTRL") > -1:
                         print("Found port:", port_name)
                         nano_kontrol_port = port
                         break
@@ -494,7 +494,7 @@ class NanoKontrolAlsaMidiComm:
         print("Connected")
 
 
-if (__name__ == '__main__'):
+if __name__ == '__main__':
     Nano_Scene = NanoKontrolScene()
     Midi_Comm = NanoKontrolAlsaMidiComm()
     Midi_Comm.scene_change_request(0)

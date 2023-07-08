@@ -111,24 +111,23 @@ class NanoKontrolGui:
         print('Focus_Event')
         self.current_widget = data['Widget']
         self.current_widget_type = data['Widget_Type']
-        # widget.modify_text(state=Gtk.STATE_ACTIVE, color=Gtk.gdk.Color(red=0, green=65535, blue=0, pixel=0))
 
         # Show the appropriate control widgets.
-        if (self.current_widget_type == 'Slider'):
+        if self.current_widget_type == 'Slider':
             self.current_block = data['Block']
             self.button_control_table.hide()
             self.transport_control_table.hide()
             self.slider_knob_control_table.show()
             self.block_midi_channel.set_active(
                 self.scene[self.current_scene].block[self.current_block].block_midi_channel)
-        elif (self.current_widget_type == 'Button'):
+        elif self.current_widget_type == 'Button':
             self.current_block = data['Block']
             self.slider_knob_control_table.hide()
             self.transport_control_table.hide()
             self.button_control_table.show()
             self.block_midi_channel.set_active(
                 self.scene[self.current_scene].block[self.current_block].block_midi_channel)
-        elif (self.current_widget_type == 'Transport'):
+        elif self.current_widget_type == 'Transport':
             self.slider_knob_control_table.hide()
             self.button_control_table.hide()
             self.transport_control_table.show()
@@ -141,7 +140,7 @@ class NanoKontrolGui:
         self.transport_midi_channel.set_active(
             self.scene[self.current_scene].transport_midi_channel)
 
-        if (self.current_widget == 'Slider'):
+        if self.current_widget == 'Slider':
             self.slider_assign_type.set_active(
                 self.scene[self.current_scene].block[self.current_block].slider_assign_type)
             self.slider_cc.set_value(
@@ -150,7 +149,7 @@ class NanoKontrolGui:
                 self.scene[self.current_scene].block[self.current_block].slider_min_value)
             self.slider_max_value.set_value(
                 self.scene[self.current_scene].block[self.current_block].slider_max_value)
-        elif (self.current_widget == 'Knob'):
+        elif self.current_widget == 'Knob':
             self.slider_assign_type.set_active(
                 self.scene[self.current_scene].block[self.current_block].knob_assign_type)
             self.slider_cc.set_value(
@@ -159,7 +158,7 @@ class NanoKontrolGui:
                 self.scene[self.current_scene].block[self.current_block].knob_min_value)
             self.slider_max_value.set_value(
                 self.scene[self.current_scene].block[self.current_block].knob_max_value)
-        elif (self.current_widget == 'Button_A'):
+        elif self.current_widget == 'Button_A':
             self.button_assign_type.set_active(
                 self.scene[self.current_scene].block[self.current_block].sw_a_assign_type)
             self.button_cc.set_value(
@@ -174,7 +173,7 @@ class NanoKontrolGui:
                 self.scene[self.current_scene].block[self.current_block].sw_a_release_time)
             self.button_switch_type.set_active(
                 self.scene[self.current_scene].block[self.current_block].sw_a_switch_type)
-        elif (self.current_widget == 'Button_B'):
+        elif self.current_widget == 'Button_B':
             self.button_assign_type.set_active(
                 self.scene[self.current_scene].block[self.current_block].sw_b_assign_type)
             self.button_cc.set_value(
@@ -189,7 +188,7 @@ class NanoKontrolGui:
                 self.scene[self.current_scene].block[self.current_block].sw_b_release_time)
             self.button_switch_type.set_active(
                 self.scene[self.current_scene].block[self.current_block].sw_b_switch_type)
-        elif (self.current_widget in range(6)):
+        elif self.current_widget in range(6):
             self.transport_assign_type.set_active(
                 self.scene[self.current_scene].transport_button[self.current_widget].assign_type)
             self.transport_cc.set_value(
@@ -202,7 +201,7 @@ class NanoKontrolGui:
                 self.scene[self.current_scene].transport_button[self.current_widget].switch_type)
 
         # Emphasize the current widget.
-        if (widget):
+        if widget:
             highlight_color = Gdk.Color(red=0, green=65535, blue=0)
             normal_color = self.scene_button.get_style().white
 
@@ -225,50 +224,50 @@ class NanoKontrolGui:
         input_widget = data['Widget']
 
         # Read value from widget, and store the value in the backend datastore.
-        if (self.current_widget == 'Slider'):
-            if (input_widget == 'CC'):
+        if self.current_widget == 'Slider':
+            if input_widget == 'CC':
                 self.scene[self.current_scene].block[self.current_block].slider_cc = value
-            elif (input_widget == 'Min_Value'):
+            elif input_widget == 'Min_Value':
                 self.scene[self.current_scene].block[self.current_block].slider_min_value = value
-            elif (input_widget == 'Max_Value'):
+            elif input_widget == 'Max_Value':
                 self.scene[self.current_scene].block[self.current_block].slider_max_value = value
 
-        elif (self.current_widget == 'Knob'):
-            if (input_widget == 'CC'):
+        elif self.current_widget == 'Knob':
+            if input_widget == 'CC':
                 self.scene[self.current_scene].block[self.current_block].knob_cc = value
-            elif (input_widget == 'Min_Value'):
+            elif input_widget == 'Min_Value':
                 self.scene[self.current_scene].block[self.current_block].knob_min_value = value
-            elif (input_widget == 'Max_Value'):
+            elif input_widget == 'Max_Value':
                 self.scene[self.current_scene].block[self.current_block].knob_max_value = value
 
-        elif (self.current_widget == 'Button_A'):
-            if (input_widget == 'CC'):
+        elif self.current_widget == 'Button_A':
+            if input_widget == 'CC':
                 self.scene[self.current_scene].block[self.current_block].sw_a_cc = value
-            elif (input_widget == 'Off_Value'):
+            elif input_widget == 'Off_Value':
                 self.scene[self.current_scene].block[self.current_block].sw_a_off_value = value
-            elif (input_widget == 'On_Value'):
+            elif input_widget == 'On_Value':
                 self.scene[self.current_scene].block[self.current_block].sw_a_on_value = value
-            elif (input_widget == 'Attack_Time'):
+            elif input_widget == 'Attack_Time':
                 self.scene[self.current_scene].block[self.current_block].sw_a_attack_time = value
-            elif (input_widget == 'Release_Time'):
+            elif input_widget == 'Release_Time':
                 self.scene[self.current_scene].block[self.current_block].sw_a_release_time = value
 
-        elif (self.current_widget == 'Button_B'):
-            if (input_widget == 'CC'):
+        elif self.current_widget == 'Button_B':
+            if input_widget == 'CC':
                 self.scene[self.current_scene].block[self.current_block].sw_b_cc = value
-            elif (input_widget == 'Off_Value'):
+            elif input_widget == 'Off_Value':
                 self.scene[self.current_scene].block[self.current_block].sw_b_off_value = value
-            elif (input_widget == 'On_Value'):
+            elif input_widget == 'On_Value':
                 self.scene[self.current_scene].block[self.current_block].sw_b_on_value = value
-            elif (input_widget == 'Attack_Time'):
+            elif input_widget == 'Attack_Time':
                 self.scene[self.current_scene].block[self.current_block].sw_b_attack_time = value
-            elif (input_widget == 'Release_Time'):
+            elif input_widget == 'Release_Time':
                 self.scene[self.current_scene].block[self.current_block].sw_b_release_time = value
 
-        elif (self.current_widget in range(6)):
-            if (input_widget == 'CC'):
+        elif self.current_widget in range(6):
+            if input_widget == 'CC':
                 self.scene[self.current_scene].transport_button[self.current_widget].cc = value
-            elif (input_widget == 'MMC_Dev_ID'):
+            elif input_widget == 'MMC_Dev_ID':
                 self.scene[self.current_scene].transport_button[self.current_widget].mmc_device_id = value
 
     def combo_event(self, widget, data=None):
@@ -280,41 +279,41 @@ class NanoKontrolGui:
         input_widget = data['Widget']
 
         # Read value from widget, and store the value in the backend datastore.
-        if (input_widget == 'Scene_Midi_Channel'):
+        if input_widget == 'Scene_Midi_Channel':
             self.scene[self.current_scene].common.scene_midi_channel = value
 
-        elif (input_widget == 'Block_Midi_Channel'):
+        elif input_widget == 'Block_Midi_Channel':
             self.scene[self.current_scene].block[self.current_block].block_midi_channel = value
 
-        elif (input_widget == 'Transport_Midi_Channel'):
+        elif input_widget == 'Transport_Midi_Channel':
             self.scene[self.current_scene].transport_midi_channel = value
 
-        elif (self.current_widget == 'Slider'):
-            if (input_widget == 'Assign_Type'):
+        elif self.current_widget == 'Slider':
+            if input_widget == 'Assign_Type':
                 self.scene[self.current_scene].block[self.current_block].slider_assign_type = value
 
-        elif (self.current_widget == 'Knob'):
-            if (input_widget == 'Assign_Type'):
+        elif self.current_widget == 'Knob':
+            if input_widget == 'Assign_Type':
                 self.scene[self.current_scene].block[self.current_block].knob_assign_type = value
 
-        elif (self.current_widget == 'Button_A'):
-            if (input_widget == 'Assign_Type'):
+        elif self.current_widget == 'Button_A':
+            if input_widget == 'Assign_Type':
                 self.scene[self.current_scene].block[self.current_block].sw_a_assign_type = value
-            elif (input_widget == 'Switch_Type'):
+            elif input_widget == 'Switch_Type':
                 self.scene[self.current_scene].block[self.current_block].sw_a_switch_type = value
 
-        elif (self.current_widget == 'Button_B'):
-            if (input_widget == 'Assign_Type'):
+        elif self.current_widget == 'Button_B':
+            if input_widget == 'Assign_Type':
                 self.scene[self.current_scene].block[self.current_block].sw_b_assign_type = value
-            elif (input_widget == 'Switch_Type'):
+            elif input_widget == 'Switch_Type':
                 self.scene[self.current_scene].block[self.current_block].sw_b_switch_type = value
 
-        elif (self.current_widget in range(6)):
-            if (input_widget == 'Assign_Type'):
+        elif self.current_widget in range(6):
+            if input_widget == 'Assign_Type':
                 self.scene[self.current_scene].transport_button[self.current_widget].assign_type = value
-            elif (input_widget == 'MMC_Command'):
+            elif input_widget == 'MMC_Command':
                 self.scene[self.current_scene].transport_button[self.current_widget].mmc_command = value
-            elif (input_widget == 'Switch_Type'):
+            elif input_widget == 'Switch_Type':
                 self.scene[self.current_scene].transport_button[self.current_widget].switch_type = value
 
         return False
@@ -325,7 +324,7 @@ class NanoKontrolGui:
         input_widget = data['Widget']
 
         # Read value from widget, and store the value in the backend datastore.
-        if (input_widget == 'Scene_Name'):
+        if input_widget == 'Scene_Name':
             self.scene[self.current_scene].common.scene_name = value
 
         return False
@@ -340,7 +339,7 @@ class NanoKontrolGui:
         radio_buttons.sort(key=Gtk.RadioButton.get_name)
 
         for i in range(len(radio_buttons)):
-            if (i == len(radio_buttons)-1):
+            if i == len(radio_buttons)-1:
                 # If we come this far, we need to wrap around to the first.
                 radio_buttons[0].set_active(is_active=True)
                 break
@@ -363,7 +362,7 @@ class NanoKontrolGui:
         radio_buttons.sort(key=Gtk.RadioButton.get_name)
 
         for i in range(len(radio_buttons)):
-            if (radio_buttons[i].get_active()):
+            if radio_buttons[i].get_active():
                 self.current_scene = i
 
         # Fire off the Focus_Event so that the control widgets
@@ -423,7 +422,7 @@ class NanoKontrolGui:
         print('Fader Event')
         print(widget.get_value())
         print('Block: ' + str(data['Block']))
-        if (data['Type'] == 'Slider'):
+        if data['Type'] == 'Slider':
             assign_type = self.scene[self.current_scene].block[data['Block']
                                                                ].slider_assign_type
             cc_number = self.scene[self.current_scene].block[data['Block']].slider_cc
@@ -431,7 +430,7 @@ class NanoKontrolGui:
                                                              ].slider_min_value
             max_value = self.scene[self.current_scene].block[data['Block']
                                                              ].slider_max_value
-        elif (data['Type'] == 'Knob'):
+        elif data['Type'] == 'Knob':
             assign_type = self.scene[self.current_scene].block[data['Block']
                                                                ].knob_assign_type
             cc_number = self.scene[self.current_scene].block[data['Block']].knob_cc
@@ -443,7 +442,7 @@ class NanoKontrolGui:
         block_midi_channel = self.scene[self.current_scene].block[data['Block']
                                                                   ].block_midi_channel
         midi_channel = block_midi_channel
-        if (midi_channel == 16):
+        if midi_channel == 16:
             midi_channel = self.scene[self.current_scene].common.scene_midi_channel
 
         print('Max value: ' + str(max_value))
@@ -455,7 +454,7 @@ class NanoKontrolGui:
                          (max_value - min_value) + min_value) + 0.5)
         print('Midi Value: ' + str(midi_value))
 
-        if (assign_type == 1):
+        if assign_type == 1:
             self.midi_comm.send_midi_cc(
                 channel=midi_channel, cc=cc_number, value=midi_value)
 
@@ -463,7 +462,7 @@ class NanoKontrolGui:
 
     def button_pressed_event(self, widget, data=None):
         print('Button Pressed Event')
-        if (data['Widget'] == 'Button_A'):
+        if data['Widget'] == 'Button_A':
             assign_type = self.scene[self.current_scene].block[data['Block']
                                                                ].sw_a_assign_type
             cc_number = self.scene[self.current_scene].block[data['Block']].sw_a_cc
@@ -472,7 +471,7 @@ class NanoKontrolGui:
             on_value = self.scene[self.current_scene].block[data['Block']].sw_a_on_value
             switch_type = self.scene[self.current_scene].block[data['Block']
                                                                ].sw_a_switch_type
-        elif (data['Widget'] == 'Button_B'):
+        elif data['Widget'] == 'Button_B':
             assign_type = self.scene[self.current_scene].block[data['Block']
                                                                ].sw_b_assign_type
             cc_number = self.scene[self.current_scene].block[data['Block']].sw_b_cc
@@ -485,7 +484,7 @@ class NanoKontrolGui:
         block_midi_channel = self.scene[self.current_scene].block[data['Block']
                                                                   ].block_midi_channel
         midi_channel = block_midi_channel
-        if (midi_channel == 16):
+        if midi_channel == 16:
             midi_channel = self.scene[self.current_scene].common.scene_midi_channel
 
         print('On value: ' + str(on_value))
@@ -496,17 +495,17 @@ class NanoKontrolGui:
         print('Switch Type: ' + str(switch_type))
         print(widget.get_active())
 
-        if (assign_type == 1):
-            if (switch_type == 0):
+        if assign_type == 1:
+            if switch_type == 0:
                 self.midi_comm.send_midi_cc(
                     channel=midi_channel, cc=cc_number, value=on_value)
                 widget.set_active(True)
-            elif (switch_type == 1):
+            elif switch_type == 1:
                 toggle_state = widget.get_active()
-                if (toggle_state):
+                if toggle_state:
                     self.midi_comm.send_midi_cc(
                         channel=midi_channel, cc=cc_number, value=off_value)
-                elif (not toggle_state):
+                elif not toggle_state:
                     self.midi_comm.send_midi_cc(
                         channel=midi_channel, cc=cc_number, value=on_value)
 
@@ -514,7 +513,7 @@ class NanoKontrolGui:
 
     def button_released_event(self, widget, data=None):
         print('Button Released Event')
-        if (data['Widget'] == 'Button_A'):
+        if data['Widget'] == 'Button_A':
             assign_type = self.scene[self.current_scene].block[data['Block']
                                                                ].sw_a_assign_type
             cc_number = self.scene[self.current_scene].block[data['Block']].sw_a_cc
@@ -523,7 +522,7 @@ class NanoKontrolGui:
             on_value = self.scene[self.current_scene].block[data['Block']].sw_a_on_value
             switch_type = self.scene[self.current_scene].block[data['Block']
                                                                ].sw_a_switch_type
-        elif (data['Widget'] == 'Button_B'):
+        elif data['Widget'] == 'Button_B':
             assign_type = self.scene[self.current_scene].block[data['Block']
                                                                ].sw_b_assign_type
             cc_number = self.scene[self.current_scene].block[data['Block']].sw_b_cc
@@ -536,7 +535,7 @@ class NanoKontrolGui:
         block_midi_channel = self.scene[self.current_scene].block[data['Block']
                                                                   ].block_midi_channel
         midi_channel = block_midi_channel
-        if (midi_channel == 16):
+        if midi_channel == 16:
             midi_channel = self.scene[self.current_scene].common.scene_midi_channel
 
         print('On value: ' + str(on_value))
@@ -566,25 +565,25 @@ class NanoKontrolGui:
         print('MMC Device ID: ' + str(mmc_device_id))
         print('Switch Type: ' + str(switch_type))
 
-        if (assign_type == 1):
+        if assign_type == 1:
             transport_midi_channel = self.scene[self.current_scene].transport_midi_channel
             midi_channel = transport_midi_channel
-            if (midi_channel == 16):
+            if midi_channel == 16:
                 midi_channel = self.scene[self.current_scene].common.scene_midi_channel
-            if (switch_type == 0):
+            if switch_type == 0:
                 self.midi_comm.send_midi_cc(
                     channel=midi_channel, cc=cc_number, value=127)
                 widget.set_active(True)
-            elif (switch_type == 1):
+            elif switch_type == 1:
                 toggle_state = widget.get_active()
-                if (toggle_state):
+                if toggle_state:
                     self.midi_comm.send_midi_cc(
                         channel=midi_channel, cc=cc_number, value=0)
-                elif (not toggle_state):
+                elif not toggle_state:
                     self.midi_comm.send_midi_cc(
                         channel=midi_channel, cc=cc_number, value=127)
 
-        elif (assign_type == 2):
+        elif assign_type == 2:
             self.midi_comm.send_midi_mmc(
                 device_id=mmc_device_id, command=mmc_command)
             widget.set_active(True)
@@ -606,7 +605,7 @@ class NanoKontrolGui:
 
         transport_midi_channel = self.scene[self.current_scene].transport_midi_channel
         midi_channel = transport_midi_channel
-        if (midi_channel == 16):
+        if midi_channel == 16:
             midi_channel = self.scene[self.current_scene].common.scene_midi_channel
 
         if (assign_type == 1 and switch_type == 0):
