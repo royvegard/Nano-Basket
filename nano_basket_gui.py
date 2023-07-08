@@ -374,11 +374,11 @@ class NanoKontrolGui:
     def upload_scene_event(self, widget, data=None):
         try:
             self.midi_comm.scene_change_request(
-                Scene_Number=self.current_scene)
+                scene_number=self.current_scene)
             scene_list = self.scene[self.current_scene].get_list()
             self.midi_comm.scene_upload_request(
-                Scene_List=scene_list, Scene_Number=self.current_scene)
-            self.midi_comm.scene_write_request(Scene_Number=self.current_scene)
+                scene_list=scene_list, scene_number=self.current_scene)
+            self.midi_comm.scene_write_request(scene_number=self.current_scene)
         except:
             self.status_bar.push(
                 context_id=self.status_bar_context_id, text='Error:Upload Scene failed')
