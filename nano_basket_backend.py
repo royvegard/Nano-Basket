@@ -353,9 +353,9 @@ class NanoKontrolAlsaMidiComm:
             if 'ext' in res.get_data().keys():
                 print("Reply " + " ".join("{:02x}".format(x)
                       for x in res.get_data()['ext']))
-                if res.get_data()['ext'][9] == 0x23:
+                if res.get_data()['ext'][8] == 0x23:
                     print('Data load Success!')
-                elif res.get_data()['ext'][9] == 0x24:
+                elif res.get_data()['ext'][8] == 0x24:
                     print('Data load Fail!')
 
     def scene_dump_request(self, scene_number=None):
@@ -424,10 +424,12 @@ class NanoKontrolAlsaMidiComm:
             if 'ext' in res.get_data().keys():
                 print("Reply " + " ".join("{:02x}".format(x)
                       for x in res.get_data()['ext']))
-                if res.get_data()['ext'][9] == 0x23:
+                if res.get_data()['ext'][8] == 0x21:
                     print('Data write Success!')
-                elif res.get_data()['ext'][9] == 0x24:
+                elif res.get_data()['ext'][8] == 0x22:
                     print('Data write Fail!')
+                elif res.get_data()['ext'][8] == 0x4f:
+                    print('Scene change')
 
     def search_device_request(self):
         sysex = [0xf0,  0x42,  0x50]  # Exclusive Header
