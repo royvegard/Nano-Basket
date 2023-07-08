@@ -392,7 +392,7 @@ class NanoKontrolGui:
     def download_scene_event(self, widget, data=None):
         try:
             self.midi_comm.scene_change_request(
-                Scene_Number=self.current_scene)
+                scene_number=self.current_scene)
             scene_data = self.midi_comm.scene_dump_request()
             self.scene[self.current_scene].parse_data(scene_data)
         except:
@@ -586,7 +586,7 @@ class NanoKontrolGui:
 
         elif (assign_type == 2):
             self.midi_comm.send_midi_mmc(
-                Device_ID=mmc_device_id, Command=mmc_command)
+                device_id=mmc_device_id, command=mmc_command)
             widget.set_active(True)
 
         return False

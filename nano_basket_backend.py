@@ -471,20 +471,16 @@ class NanoKontrolAlsaMidiComm:
     def connect_midi_ports(self):
         clients = self.seq.connection_list()
         client_name = ""
-        client_id = None
         nano_kontrol_client = None
         nano_kontrol_port = None
         for client in clients:
             client_name = client[0]
-            client_id = client[1]
             if (client_name.find("nanoKONTROL") > -1):
                 nano_kontrol_client = client
                 print("Found client", client_name)
                 port_name = ""
-                port_id = None
                 for port in nano_kontrol_client[2]:
                     port_name = port[0]
-                    port_id = port[1]
                     if (port_name.find("CTRL") > -1):
                         print("Found port:", port_name)
                         nano_kontrol_port = port
