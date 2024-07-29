@@ -489,11 +489,12 @@ class NanoKontrolAlsaMidiComm:
                         break
                 break
 
-        self.seq.connect_ports(
-            (nano_kontrol_client[1], nano_kontrol_port[1]), (self.seq.client_id, self.port))
-        self.seq.connect_ports((self.seq.client_id, self.port),
-                               (nano_kontrol_client[1], nano_kontrol_port[1]))
-        print("Connected")
+        if (nano_kontrol_client and nano_kontrol_port):
+            self.seq.connect_ports(
+                (nano_kontrol_client[1], nano_kontrol_port[1]), (self.seq.client_id, self.port))
+            self.seq.connect_ports((self.seq.client_id, self.port),
+                (nano_kontrol_client[1], nano_kontrol_port[1]))
+            print("Connected")
 
 
 if __name__ == '__main__':
