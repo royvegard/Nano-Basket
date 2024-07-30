@@ -20,7 +20,9 @@
 #   along with Nano Basket.  If not, see <http://www.gnu.org/licenses/>.
 
 import copy
+import io
 import gi
+import pickle
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Gdk
@@ -418,6 +420,59 @@ class NanoKontrolGui:
                          data={'Block': self.current_block, 'Widget': self.current_widget, 'Widget_Type': self.current_widget_type})
         return False
 
+    def open_event(self, widget, data=None):
+        print('Open event')
+        dialog = Gtk.FileChooserDialog("Please choose a file", self.window,
+            Gtk.FileChooserAction.OPEN,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             Gtk.STOCK_OPEN, Gtk.ResponseType.OK))
+
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            print("Open clicked")
+            print("File selected: " + dialog.get_filename())
+            self.settings_file = dialog.get_filename()
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Cancel clicked")
+        
+        dialog.destroy()
+
+        if (self.settings_file):
+            file = io.open(file=self.settings_file, mode='rb')
+            self.scene = pickle.load(file)
+            file.close()
+
+        self.focus_event(widget=None, event=None,
+                         data={'Block': self.current_block, 'Widget': self.current_widget, 'Widget_Type': self.current_widget_type})
+
+        return False
+
+    def save_event(self, widget, data=None):
+        print('Save event')
+        dialog = Gtk.FileChooserDialog("Please choose a file", self.window,
+            Gtk.FileChooserAction.SAVE,
+            (Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL,
+             Gtk.STOCK_SAVE, Gtk.ResponseType.OK))
+
+        dialog.set_current_name('unnamed')
+        response = dialog.run()
+        if response == Gtk.ResponseType.OK:
+            print("Open clicked")
+            print("File selected: " + dialog.get_filename())
+            self.settings_file = dialog.get_filename()
+        elif response == Gtk.ResponseType.CANCEL:
+            print("Cancel clicked")
+        
+        dialog.destroy()
+
+        print(pickle.dumps(self.scene))
+        if (self.settings_file):
+            file = io.open(file=self.settings_file, mode='wb')
+            pickle.dump(self.scene, file)
+            file.close()
+
+        return False
+
     def fader_event(self, widget, data=None):
         print('Fader Event')
         print(widget.get_value())
@@ -621,6 +676,7 @@ class NanoKontrolGui:
         self.current_block = 0
         self.current_widget = None
         self.current_widget_type = None
+        self.settings_file = None
 
         self.window = Gtk.ApplicationWindow(title="Nano")
         self.window.connect("delete_event", self.delete_event, None)
@@ -630,7 +686,9 @@ class NanoKontrolGui:
         self.menu_bar = Gtk.MenuBar()
         self.file_menu = Gtk.Menu()
         self.file_open = Gtk.MenuItem(label='Open...')
+        self.file_open.connect("activate", self.open_event)
         self.file_save = Gtk.MenuItem(label='Save...')
+        self.file_save.connect("activate", self.save_event)
         self.file_upload_scene = Gtk.MenuItem(label='Upload Scene to Device')
         self.file_upload_scene.connect("activate", self.upload_scene_event)
         self.file_download_scene = Gtk.MenuItem(
