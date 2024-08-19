@@ -432,8 +432,6 @@ class NanoKontrolGui:
             print("Open clicked")
             print("File selected: " + dialog.get_filename())
             self.settings_file = dialog.get_filename()
-        elif response == Gtk.ResponseType.CANCEL:
-            print("Cancel clicked")
         
         dialog.destroy()
 
@@ -460,12 +458,9 @@ class NanoKontrolGui:
             print("Open clicked")
             print("File selected: " + dialog.get_filename())
             self.settings_file = dialog.get_filename()
-        elif response == Gtk.ResponseType.CANCEL:
-            print("Cancel clicked")
         
         dialog.destroy()
 
-        print(pickle.dumps(self.scene))
         if (self.settings_file):
             file = io.open(file=self.settings_file, mode='wb')
             pickle.dump(self.scene, file)
